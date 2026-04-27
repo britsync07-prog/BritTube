@@ -60,6 +60,9 @@ class VideoController:
         if not task_info:
             return {"status": "error", "message": "task not found"}
         
+        # Ensure message field exists to prevent frontend crash
+        task_info["message"] = task_info.get("message", "")
+        
         # Convert absolute paths to URLs if they are still paths
         if "videos" in task_info and task_info["videos"]:
             new_videos = []

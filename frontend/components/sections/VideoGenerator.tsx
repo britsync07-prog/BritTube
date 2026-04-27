@@ -753,7 +753,7 @@ export const VideoGenerator = () => {
                         {status.state === 4 ? "Generating Content..." : status.state === 1 ? "Video Ready!" : "Generation Failed"}
                       </h3>
                       <p className="text-muted/80 text-sm max-w-md mx-auto">
-                        {status.message.startsWith("Error:") ? status.message.replace("Error:", "").trim() : status.message}
+                        {(status.message || "").startsWith("Error:") ? (status.message || "").replace("Error:", "").trim() : (status.message || "An unknown error occurred during generation.")}
                       </p>
                     </div>
 
