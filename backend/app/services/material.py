@@ -23,9 +23,18 @@ _api_key_lock = threading.Lock()
 
 def get_api_key(cfg_key: str):
     api_keys = config.app.get(cfg_key)
+    
     if not api_keys:
+        # Fallback to environment variables
+        env_key = cfg_key.upper().replace("_KEYS", "_KEY")
+        env_val = os.environ.get(env_key)
+        if env_val:
+            api_keys = env_val.split(",")
+
+    if not api_keys:
+        from app.core.config import config_file
         raise ValueError(
-            f"\n\n##### {cfg_key} is not set #####\n\nPlease set it in the config.toml file: {config.config_file}\n\n"
+            f"\n\n##### {cfg_key} is not set #####\n\nPlease set it in the config.toml file: {config_file} or in .env as {cfg_key.upper().replace('_KEYS', '_KEY')}\n\n"
             f"{utils.to_json(config.app)}"
         )
 
