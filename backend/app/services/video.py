@@ -43,9 +43,9 @@ video_codec = "libx264"
 fps = 30
 
 # High-quality encoding parameters
-video_bitrate = "8000k"  # High bitrate for excellent quality
-audio_bitrate = "320k"   # High audio bitrate
-crf = 18                 # Constant Rate Factor - lower = higher quality (18-23 is excellent range)
+video_bitrate = "3000k"  # Optimized for web streaming and fast playback
+audio_bitrate = "192k"   # Standard high-quality audio
+crf = 23                 # Constant Rate Factor - balance of quality and size
 preset = "medium"        # Balance between encoding speed and compression efficiency
 
 # FFmpeg parameters for maximum quality

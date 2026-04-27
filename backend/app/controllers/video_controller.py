@@ -64,6 +64,12 @@ class VideoController:
         task_info["message"] = task_info.get("message", "")
         
         # Convert absolute paths to URLs if they are still paths
+        if "video_url" in task_info and task_info["video_url"]:
+            v_path = task_info["video_url"]
+            if isinstance(v_path, str) and os.path.isabs(v_path):
+                filename = os.path.basename(v_path)
+                task_info["video_url"] = f"/tasks/{task_id}/{filename}"
+
         if "videos" in task_info and task_info["videos"]:
             new_videos = []
             for v_path in task_info["videos"]:
@@ -74,7 +80,8 @@ class VideoController:
                 else:
                     new_videos.append(v_path)
             task_info["videos"] = new_videos
-            task_info["video_url"] = new_videos[0] if new_videos else ""
+        elif task_info.get("video_url"):
+            task_info["videos"] = [task_info["video_url"]]
             
         # Ensure required fields
         if "id" not in task_info:
