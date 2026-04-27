@@ -138,7 +138,8 @@ def _generate_response(prompt: str) -> str:
                 if not base_url:
                     base_url = "https://api-inference.modelscope.cn/v1/"
             elif llm_provider == "groq":
-                api_key = config.app.get("groq_api_key")
+                import os
+                api_key = config.app.get("groq_api_key") or os.environ.get("GROQ_API_KEY")
                 model_name = config.app.get("groq_model_name")
                 base_url = config.app.get("groq_base_url")
                 if not base_url:
