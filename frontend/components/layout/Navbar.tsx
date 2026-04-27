@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, Cpu, Zap, Layers, Play } from "lucide-react";
 import Link from "next/link";
-import { cn } from "@/lib/utils";
+import { cn } from "../../lib/utils";
 
 const navLinks = [
   { name: "Features", href: "#features", icon: Cpu },

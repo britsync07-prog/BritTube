@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Film, Calendar, ExternalLink, Download, Clock, AlertCircle } from "lucide-react";
-import { api } from "@/lib/api";
+import { api } from "../../lib/api";
 
 interface HistoricalTask {
   task_id: string;

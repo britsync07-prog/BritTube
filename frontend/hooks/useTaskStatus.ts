@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import { api, TaskStatus } from "@/lib/api";
+import { api, TaskStatus } from "../lib/api";
 
 export const useTaskStatus = (taskId: string | null) => {
   const [status, setStatus] = useState<TaskStatus | null>(null);

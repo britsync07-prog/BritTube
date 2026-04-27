@@ -3,9 +3,9 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Zap, Play, Loader2, CheckCircle2, AlertCircle, RefreshCcw, FileText, Video as VideoIcon, Music, Type, Settings2, Sparkles } from "lucide-react";
-import { api, VideoTaskParams } from "@/lib/api";
-import { useTaskStatus } from "@/hooks/useTaskStatus";
-import { cn } from "@/lib/utils";
+import { api, VideoTaskParams } from "../../lib/api";
+import { useTaskStatus } from "../../hooks/useTaskStatus";
+import { cn } from "../../lib/utils";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:9090/api/v1";
 const TASKS_BASE_URL = API_BASE.replace(/\/api\/v1\/?$/, "");

@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Cpu, Mail, Lock, User, Eye, EyeOff, ArrowRight, AlertCircle, CheckCircle2 } from "lucide-react";
-import { registerRequest, loginRequest, saveToken } from "@/lib/auth";
+import { registerRequest, loginRequest, saveToken } from "../../../lib/auth";
 
 export default function SignupPage() {
   const router = useRouter();

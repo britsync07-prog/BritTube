@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { getToken, clearToken, fetchCurrentUser, User } from "@/lib/auth";
+import { getToken, clearToken, fetchCurrentUser, User } from "../lib/auth";
 
 interface UseAuthReturn {
   user: User | null;
