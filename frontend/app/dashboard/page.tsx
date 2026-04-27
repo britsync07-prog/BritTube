@@ -1,15 +1,15 @@
 "use client";
 
 import React, { useState } from "react";
-import { useAuth } from "../hooks/useAuth";
+import { useAuth } from "../../hooks/useAuth";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import {
   Cpu, Zap, Film, LogOut, Crown,
   Clock, CheckCircle2, TrendingUp
 } from "lucide-react";
-import { VideoGenerator } from "../components/sections/VideoGenerator";
-import { VideoHistory } from "../components/sections/VideoHistory";
+import { VideoGenerator } from "../../components/sections/VideoGenerator";
+import { VideoHistory } from "../../components/sections/VideoHistory";
 
 const PLAN_COLORS: Record<string, string> = {
   free: "text-gray-400 bg-gray-400/10 border-gray-400/20",
