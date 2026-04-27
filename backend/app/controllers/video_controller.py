@@ -92,4 +92,19 @@ class VideoController:
     @staticmethod
     def list_tasks(db: Session, user_id: int):
         tasks = db.query(Task).filter(Task.user_id == user_id).order_by(Task.created_at.desc()).all()
-        return tasks
+        result = []
+        for task in tasks:
+            task_dict = {
+                "id": task.id,
+                "task_id": task.task_id,
+                "video_subject": task.video_subject,
+                "video_url": task.video_url,
+                "state": task.state,
+                "progress": task.progress,
+                "created_at": task.created_at,
+            }
+            if task_dict["video_url"] and isinstance(task_dict["video_url"], str) and os.path.isabs(task_dict["video_url"]):
+                filename = os.path.basename(task_dict["video_url"])
+                task_dict["video_url"] = f"/tasks/{task.task_id}/{filename}"
+            result.append(task_dict)
+        return result
