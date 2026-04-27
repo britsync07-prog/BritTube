@@ -7,6 +7,9 @@ import { api, VideoTaskParams } from "@/lib/api";
 import { useTaskStatus } from "@/hooks/useTaskStatus";
 import { cn } from "@/lib/utils";
 
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:9090/api/v1";
+const TASKS_BASE_URL = API_BASE.replace(/\/api\/v1\/?$/, "");
+
 export const VideoGenerator = () => {
   const [activeTab, setActiveTab] = useState("script");
   const [taskId, setTaskId] = useState<string | null>(null);
@@ -762,14 +765,14 @@ export const VideoGenerator = () => {
                       >
                          <div className="relative aspect-video rounded-3xl overflow-hidden border border-white/10 group">
                             <video 
-                              src={status.video_url} 
+                              src={status.video_url.startsWith("http") ? status.video_url : `${TASKS_BASE_URL}${status.video_url}`} 
                               controls 
                               className="w-full h-full object-cover"
                             />
                          </div>
                          <div className="flex justify-center gap-4">
                             <a 
-                              href={status.video_url} 
+                              href={status.video_url.startsWith("http") ? status.video_url : `${TASKS_BASE_URL}${status.video_url}`} 
                               download 
                               className="px-8 py-3 rounded-xl bg-white text-black font-bold hover:scale-105 transition-transform"
                             >

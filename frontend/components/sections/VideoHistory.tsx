@@ -13,6 +13,10 @@ interface HistoricalTask {
   created_at: string;
 }
 
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:9090/api/v1";
+// Remove /api/v1 from the end to get the root host
+const TASKS_BASE_URL = API_BASE.replace(/\/api\/v1\/?$/, "");
+
 export const VideoHistory = () => {
   const [tasks, setTasks] = useState<HistoricalTask[]>([]);
   const [loading, setLoading] = useState(true);
@@ -86,7 +90,7 @@ export const VideoHistory = () => {
             {task.state === 1 && task.video_url && (
               <>
                 <a
-                  href={task.video_url}
+                  href={task.video_url.startsWith("http") ? task.video_url : `${TASKS_BASE_URL}${task.video_url}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-xs font-bold hover:bg-white/10 transition-colors"
@@ -95,7 +99,7 @@ export const VideoHistory = () => {
                   View
                 </a>
                 <a
-                  href={task.video_url}
+                  href={task.video_url.startsWith("http") ? task.video_url : `${TASKS_BASE_URL}${task.video_url}`}
                   download
                   className="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-purple-600 text-white text-xs font-bold hover:bg-purple-500 transition-colors"
                 >

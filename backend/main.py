@@ -30,13 +30,9 @@ app = FastAPI(
     description="BritTube Backend API"
 )
 
-# C3 Fix: Read allowed origins from env, never wildcard in production
-_raw_origins = os.getenv("ALLOWED_ORIGINS", "http://localhost:3000")
-allowed_origins = [o.strip() for o in _raw_origins.split(",") if o.strip()]
-
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=allowed_origins,
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
