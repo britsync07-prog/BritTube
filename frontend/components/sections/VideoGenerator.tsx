@@ -14,6 +14,31 @@ export const VideoGenerator = () => {
   const [activeTab, setActiveTab] = useState("script");
   const [taskId, setTaskId] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [downloadingUrl, setDownloadingUrl] = useState<string | null>(null);
+
+  const handleDownload = async (e: React.MouseEvent, url: string, filename: string) => {
+    e.preventDefault();
+    try {
+      setDownloadingUrl(url);
+      const response = await fetch(url);
+      if (!response.ok) throw new Error("Network response was not ok");
+      const blob = await response.blob();
+      const blobUrl = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = blobUrl;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(blobUrl);
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error("Download failed:", error);
+      alert("Failed to download video. Please try right-clicking the video and selecting 'Save Video As'.");
+    } finally {
+      setDownloadingUrl(null);
+    }
+  };
+
   const [params, setParams] = useState<VideoTaskParams>({
     video_subject: "AI future world",
     video_script: "",
@@ -771,13 +796,24 @@ export const VideoGenerator = () => {
                             />
                          </div>
                          <div className="flex justify-center gap-4">
-                            <a 
-                              href={status.video_url.startsWith("http") ? status.video_url : `${TASKS_BASE_URL}${status.video_url}`} 
-                              download 
-                              className="px-8 py-3 rounded-xl bg-white text-black font-bold hover:scale-105 transition-transform"
+                            <button 
+                              onClick={(e) => handleDownload(
+                                e,
+                                status.video_url.startsWith("http") ? status.video_url : `${TASKS_BASE_URL}${status.video_url}`,
+                                `brittube-${status.id?.slice(0, 6) || "video"}.mp4`
+                              )}
+                              disabled={downloadingUrl === (status.video_url.startsWith("http") ? status.video_url : `${TASKS_BASE_URL}${status.video_url}`)}
+                              className="px-8 py-3 rounded-xl bg-white text-black font-bold hover:scale-105 transition-transform disabled:opacity-75 disabled:hover:scale-100 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                             >
-                              Download Video
-                            </a>
+                              {downloadingUrl === (status.video_url.startsWith("http") ? status.video_url : `${TASKS_BASE_URL}${status.video_url}`) ? (
+                                <>
+                                  <div className="w-4 h-4 rounded-full border-2 border-black/30 border-t-black animate-spin" />
+                                  Downloading...
+                                </>
+                              ) : (
+                                "Download Video"
+                              )}
+                            </button>
                             <button 
                               onClick={handleReset}
                               className="px-8 py-3 rounded-xl bg-white/5 border border-white/10 text-white font-bold hover:bg-white/10 transition-colors flex items-center gap-2"

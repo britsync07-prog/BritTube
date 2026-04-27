@@ -20,6 +20,30 @@ const TASKS_BASE_URL = API_BASE.replace(/\/api\/v1\/?$/, "");
 export const VideoHistory = () => {
   const [tasks, setTasks] = useState<HistoricalTask[]>([]);
   const [loading, setLoading] = useState(true);
+  const [downloadingUrl, setDownloadingUrl] = useState<string | null>(null);
+
+  const handleDownload = async (e: React.MouseEvent, url: string, filename: string) => {
+    e.preventDefault();
+    try {
+      setDownloadingUrl(url);
+      const response = await fetch(url);
+      if (!response.ok) throw new Error("Network response was not ok");
+      const blob = await response.blob();
+      const blobUrl = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = blobUrl;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(blobUrl);
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error("Download failed:", error);
+      alert("Failed to download video. Please try right-clicking the View link and selecting 'Save Link As'.");
+    } finally {
+      setDownloadingUrl(null);
+    }
+  };
 
   useEffect(() => {
     const fetchHistory = async () => {
@@ -98,14 +122,27 @@ export const VideoHistory = () => {
                   <ExternalLink className="w-3.5 h-3.5" />
                   View
                 </a>
-                <a
-                  href={task.video_url.startsWith("http") ? task.video_url : `${TASKS_BASE_URL}${task.video_url}`}
-                  download
-                  className="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-purple-600 text-white text-xs font-bold hover:bg-purple-500 transition-colors"
+                <button
+                  onClick={(e) => handleDownload(
+                    e, 
+                    task.video_url.startsWith("http") ? task.video_url : `${TASKS_BASE_URL}${task.video_url}`, 
+                    `brittube-${task.task_id.slice(0, 6)}.mp4`
+                  )}
+                  disabled={downloadingUrl === (task.video_url.startsWith("http") ? task.video_url : `${TASKS_BASE_URL}${task.video_url}`)}
+                  className="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-purple-600 text-white text-xs font-bold hover:bg-purple-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <Download className="w-3.5 h-3.5" />
-                  Download
-                </a>
+                  {downloadingUrl === (task.video_url.startsWith("http") ? task.video_url : `${TASKS_BASE_URL}${task.video_url}`) ? (
+                    <>
+                      <div className="w-3.5 h-3.5 rounded-full border-2 border-white/30 border-t-white animate-spin" />
+                      Downloading...
+                    </>
+                  ) : (
+                    <>
+                      <Download className="w-3.5 h-3.5" />
+                      Download
+                    </>
+                  )}
+                </button>
               </>
             )}
             {task.state === -1 && (
