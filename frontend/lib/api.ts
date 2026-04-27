@@ -1,3 +1,5 @@
+import { getToken } from "./auth";
+
 export interface VideoTaskParams {
   // Video Content Settings
   video_subject: string;
@@ -73,7 +75,7 @@ const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:9090/api/v
 export const api = {
   createTask: async (params: VideoTaskParams): Promise<{ task_id: string }> => {
     try {
-      const token = localStorage.getItem("auth_token");
+      const token = getToken();
       const response = await fetch(`${API_BASE}/tasks`, {
         method: "POST",
         headers: {
@@ -129,7 +131,7 @@ export const api = {
 
   getTaskHistory: async (): Promise<any[]> => {
     try {
-      const token = localStorage.getItem("auth_token");
+      const token = getToken();
       const response = await fetch(`${API_BASE}/tasks/history`, {
         headers: {
           "Authorization": `Bearer ${token}`
