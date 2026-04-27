@@ -1,0 +1,38 @@
+# Lightweight requirements for MoneyPrinterTurbo
+# This version uses online APIs for voice and subtitles, avoiding heavy local AI models.
+
+moviepy==2.1.2
+streamlit==1.45.0
+edge_tts==7.2.7
+fastapi==0.115.6
+uvicorn==0.32.1
+openai==1.56.1
+loguru==0.7.3
+Pillow
+google.generativeai==0.8.6
+dashscope==1.20.14
+g4f==0.5.2.2
+azure-cognitiveservices-speech==1.41.1
+redis==5.2.0
+python-multipart==0.0.19
+pyyaml==6.0.3
+requests==2.33.1
+socksio==1.0.0
+pydub==0.25.1
+httpx
+pytest
+pytest-asyncio
+
+# Optional heavy dependencies (uncomment if needed)
+# faster-whisper==1.1.0
+# scikit-learn
+# sentence-transformers
+# transformers
+# torch
+bcrypt==4.2.0
+passlib[bcrypt]==1.7.4
+python-jose[cryptography]==3.3.0
+sqlalchemy==2.0.36
+pydantic[email]==2.10.4
+python-dotenv==1.0.1
+toml==0.10.2

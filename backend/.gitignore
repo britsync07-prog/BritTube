@@ -1,0 +1,24 @@
+# M6 Fix: Ensure .env is never committed (contains SECRET_KEY)
+.env
+.env.*
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+venv/
+env/
+*.egg-info/
+
+# Database files (SQLite)
+*.db
+*.sqlite
+
+# Logs
+*.log
+backend.log
+
+# Storage
+storage/tasks/
