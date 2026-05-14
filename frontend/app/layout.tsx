@@ -15,8 +15,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "BritTube | AI Video Automation",
-  description: "The most advanced AI video generation platform.",
+  title: "TradeAuto | Automated Trading & Crypto Signals",
+  description: "Secure, non-custodial automated trading platform. Execute passive trading strategies with high-intent crypto signals.",
+  keywords: "automated trading, crypto signals, passive trading, auto-trading platform",
 };
 
 export default function RootLayout({

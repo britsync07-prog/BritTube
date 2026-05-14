@@ -21,7 +21,7 @@ export const Hero = () => {
           className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass border-white/10 text-primary text-sm font-medium mb-8"
         >
           <Sparkles className="w-4 h-4" />
-          <span>New: AI Cinematic Engine v2.0</span>
+          <span>New: Institutional-Grade Trading Signals v2.0</span>
         </motion.div>
 
         {/* Particle Animation with overlaid title */}
@@ -33,8 +33,8 @@ export const Hero = () => {
         >
           {/* Overlaid headline text */}
           <h1 className="pointer-events-none z-10 absolute text-center text-5xl md:text-7xl lg:text-8xl font-black tracking-tight leading-[1.1]">
-            Turn Ideas into <br />
-            <span className="text-gradient">Viral Masterpieces</span>
+            Automate Your Crypto <br />
+            <span className="text-gradient">Trading Precision</span>
           </h1>
           {/* Particle canvas fills the container */}
           <ParticleAnimation />
@@ -46,19 +46,19 @@ export const Hero = () => {
           transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
           className="max-w-2xl mx-auto text-lg md:text-xl text-muted leading-relaxed mb-12"
         >
-          The most advanced AI video automation engine. Generate high-quality shorts, 
-          reels, and cinematic content in seconds. 100% automated, 100% viral.
+          Secure, non-custodial automated trading platform. Execute passive trading strategies
+          with high-intent crypto signals on your favorite exchanges. 100% automated.
         </motion.p>
 
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.6, ease: "easeOut" }}
-          className="flex flex-col sm:flex-row items-center justify-center gap-6"
+          className="flex flex-col sm:flex-row items-center justify-center gap-6 mb-12"
         >
           <button className="group relative px-8 py-4 rounded-full bg-primary text-white font-bold text-lg overflow-hidden transition-all hover:scale-105 active:scale-95 shadow-2xl shadow-primary/40">
             <span className="relative z-10 flex items-center gap-2">
-              Start Building Now <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              Start Trading Now <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </span>
             <div className="absolute inset-0 bg-gradient-to-r from-secondary to-primary opacity-0 group-hover:opacity-100 transition-opacity" />
           </button>
@@ -67,8 +67,35 @@ export const Hero = () => {
             <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center">
               <Play className="w-4 h-4 fill-white text-white" />
             </div>
-            Watch Demo
+            View Live Results
           </button>
+        </motion.div>
+
+        {/* Trust Badges */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.8, ease: "easeOut" }}
+          className="flex flex-wrap justify-center gap-8 items-center text-muted"
+        >
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-full bg-green-500/10 flex items-center justify-center">
+               <svg className="w-4 h-4 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
+            </div>
+            <span className="text-sm font-medium">Non-Custodial</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-full bg-blue-500/10 flex items-center justify-center">
+              <svg className="w-4 h-4 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+            </div>
+            <span className="text-sm font-medium">API Key Encryption</span>
+          </div>
+          <div className="flex items-center gap-2">
+             <div className="w-8 h-8 rounded-full bg-amber-500/10 flex items-center justify-center">
+               <svg className="w-4 h-4 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+             </div>
+             <span className="text-sm font-medium">Ultra-Low Latency</span>
+          </div>
         </motion.div>
 
         {/* Floating UI Elements (Parallax) */}
