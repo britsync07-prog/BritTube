@@ -3,9 +3,9 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --color-primary: #a855f7;
-  --color-secondary: #6366f1;
-  --color-accent: #f472b6;
+  --color-primary: #10b981; /* Emerald 500 */
+  --color-secondary: #3b82f6; /* Blue 500 */
+  --color-accent: #f59e0b; /* Amber 500 */
   --color-muted: #94a3b8;
   
   --radius-xl: 1rem;
@@ -43,7 +43,7 @@ body {
 }
 
 .text-gradient {
-  background: linear-gradient(to right, #a855f7, #6366f1);
+  background: linear-gradient(to right, #10b981, #3b82f6);
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;

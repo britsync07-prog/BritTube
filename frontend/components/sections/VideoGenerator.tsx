@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Zap, Play, Loader2, CheckCircle2, AlertCircle, RefreshCcw, FileText, Video as VideoIcon, Music, Type, Settings2, Sparkles } from "lucide-react";
+import { Zap, Play, Loader2, CheckCircle2, AlertCircle, RefreshCcw, Activity, Layers, Shield, Settings2, Sparkles, TrendingUp } from "lucide-react";
 import { api, VideoTaskParams } from "../../lib/api";
 import { useTaskStatus } from "../../hooks/useTaskStatus";
 import { cn } from "../../lib/utils";
@@ -124,10 +124,10 @@ export const VideoGenerator = () => {
             whileInView={{ opacity: 1, y: 0 }}
             className="text-2xl md:text-4xl font-black text-white mb-4"
           >
-            Create Your <span className="text-gradient">AI Masterpiece</span>
+            Configure Your <span className="text-gradient">Trading Strategy</span>
           </motion.h2>
           <p className="text-muted text-lg">
-            Configure your video parameters and let BritTube intelligence handle the rest.
+            Set your trading parameters and let TradeAuto's algorithms execute seamlessly.
           </p>
         </div>
 
@@ -145,10 +145,9 @@ export const VideoGenerator = () => {
                 {/* Tabs */}
                 <div className="flex flex-wrap gap-2 p-1 bg-white/5 rounded-2xl border border-white/10">
                   {[
-                    { id: "script", label: "Script", icon: FileText },
-                    { id: "video", label: "Video", icon: VideoIcon },
-                    { id: "audio", label: "Audio", icon: Music },
-                    { id: "subtitles", label: "Subtitles", icon: Type },
+                    { id: "script", label: "Strategy", icon: Activity },
+                    { id: "video", label: "Execution", icon: Layers },
+                    { id: "audio", label: "Risk Mgmt", icon: Shield },
                     { id: "advanced", label: "Advanced", icon: Settings2 },
                   ].map((tab) => (
                     <button
@@ -179,42 +178,42 @@ export const VideoGenerator = () => {
                         className="space-y-6"
                       >
                         <div>
-                          <label className="block text-sm font-bold text-white/50 mb-3 uppercase tracking-wider">Video Subject</label>
+                          <label className="block text-sm font-bold text-white/50 mb-3 uppercase tracking-wider">Target Asset Pair</label>
                           <input
                             type="text"
                             required
                             value={params.video_subject}
                             onChange={(e) => setParams({ ...params, video_subject: e.target.value })}
-                            placeholder="Enter what your video is about..."
+                            placeholder="e.g. BTC/USDT, ETH/USDC..."
                             className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white focus:outline-none focus:border-primary/50 transition-colors"
                           />
                         </div>
                         <div>
-                          <label className="block text-sm font-bold text-white/50 mb-3 uppercase tracking-wider">Custom Script (Optional)</label>
+                          <label className="block text-sm font-bold text-white/50 mb-3 uppercase tracking-wider">Strategy Parameters (JSON/Text)</label>
                           <textarea
                             rows={6}
                             value={params.video_script}
                             onChange={(e) => setParams({ ...params, video_script: e.target.value })}
-                            placeholder=" ব্রিটিশ সাম্রাজ্যের ইতিহাস... (Leave empty to AI generate)"
+                            placeholder="Define custom technical indicators or leave blank for default signal algorithm..."
                             className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white focus:outline-none focus:border-primary/50 transition-colors resize-none"
                           />
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                           <div>
-                            <label className="block text-sm font-bold text-white/50 mb-3 uppercase tracking-wider">Language</label>
+                            <label className="block text-sm font-bold text-white/50 mb-3 uppercase tracking-wider">Exchange</label>
                             <select
                               value={params.video_language}
                               onChange={(e) => setParams({ ...params, video_language: e.target.value })}
                               className="w-full bg-[#121212] border border-white/10 rounded-2xl px-6 py-4 text-white focus:outline-none cursor-pointer"
                             >
-                              <option value="en-US">English (US)</option>
-                              <option value="zh-CN">Chinese (CN)</option>
-                              <option value="bn-BD">Bengali (BD)</option>
-                              <option value="es-ES">Spanish (ES)</option>
+                              <option value="en-US">Binance</option>
+                              <option value="zh-CN">Bybit</option>
+                              <option value="bn-BD">OKX</option>
+                              <option value="es-ES">Coinbase Advanced</option>
                             </select>
                           </div>
                           <div>
-                            <label className="block text-sm font-bold text-white/50 mb-3 uppercase tracking-wider">Paragraphs</label>
+                            <label className="block text-sm font-bold text-white/50 mb-3 uppercase tracking-wider">Max Concurrent Trades</label>
                             <input
                               type="number"
                               min="1"
@@ -237,86 +236,53 @@ export const VideoGenerator = () => {
                         className="grid grid-cols-1 md:grid-cols-2 gap-6"
                       >
                         <div>
-                          <label className="block text-sm font-bold text-white/50 mb-3 uppercase tracking-wider">Aspect Ratio</label>
+                          <label className="block text-sm font-bold text-white/50 mb-3 uppercase tracking-wider">Order Type</label>
                           <select
                             value={params.video_aspect}
                             onChange={(e) => setParams({ ...params, video_aspect: e.target.value as any })}
                             className="w-full bg-[#121212] border border-white/10 rounded-2xl px-6 py-4 text-white focus:outline-none cursor-pointer"
                           >
-                            <option value="16:9">Wide (16:9)</option>
-                            <option value="9:16">Vertical (9:16)</option>
-                            <option value="1:1">Square (1:1)</option>
+                            <option value="16:9">Market Order (Immediate)</option>
+                            <option value="9:16">Limit Order (Precise)</option>
+                            <option value="1:1">TWAP (Institutional)</option>
                           </select>
                         </div>
                         <div>
-                          <label className="block text-sm font-bold text-white/50 mb-3 uppercase tracking-wider">Source Provider</label>
+                          <label className="block text-sm font-bold text-white/50 mb-3 uppercase tracking-wider">Signal Confidence Level</label>
                           <select
                             value={params.video_source}
                             onChange={(e) => setParams({ ...params, video_source: e.target.value })}
                             className="w-full bg-[#121212] border border-white/10 rounded-2xl px-6 py-4 text-white focus:outline-none cursor-pointer"
                           >
-                            <option value="pexels">Pexels (High Quality)</option>
-                            <option value="pixabay">Pixabay (Varied)</option>
+                            <option value="pexels">High (Lower Frequency)</option>
+                            <option value="pixabay">Medium (Balanced)</option>
                           </select>
                         </div>
                         <div>
-                          <label className="block text-sm font-bold text-white/50 mb-3 uppercase tracking-wider">Matching Mode</label>
+                          <label className="block text-sm font-bold text-white/50 mb-3 uppercase tracking-wider">Capital Allocation</label>
                           <select
                             value={params.video_concat_mode}
                             onChange={(e) => setParams({ ...params, video_concat_mode: e.target.value as any })}
                             className="w-full bg-[#121212] border border-white/10 rounded-2xl px-6 py-4 text-white focus:outline-none cursor-pointer"
                           >
-                            <option value="random">Random Concatenation</option>
-                            <option value="sequential">Sequential Order</option>
-                            <option value="semantic">Semantic Matching (Smart)</option>
+                            <option value="random">Dynamic Sizing (Risk-adjusted)</option>
+                            <option value="sequential">Fixed Amount ($)</option>
+                            <option value="semantic">Fixed Percentage (%)</option>
                           </select>
                         </div>
                         <div>
-                          <label className="block text-sm font-bold text-white/50 mb-3 uppercase tracking-wider">Transition Effect</label>
+                          <label className="block text-sm font-bold text-white/50 mb-3 uppercase tracking-wider">Leverage (Futures Only)</label>
                           <select
                             value={params.video_transition_mode || "none"}
                             onChange={(e) => setParams({ ...params, video_transition_mode: e.target.value as any })}
                             className="w-full bg-[#121212] border border-white/10 rounded-2xl px-6 py-4 text-white focus:outline-none cursor-pointer"
                           >
-                            <option value="none">No Transition</option>
-                            <option value="Shuffle">Random Switch</option>
-                            <option value="FadeIn">Fade In</option>
-                            <option value="FadeOut">Fade Out</option>
-                            <option value="SlideIn">Slide In</option>
-                            <option value="SlideOut">Slide Out</option>
+                            <option value="none">1x (Spot)</option>
+                            <option value="Shuffle">2x</option>
+                            <option value="FadeIn">5x</option>
+                            <option value="FadeOut">10x</option>
+                            <option value="SlideIn">20x (High Risk)</option>
                           </select>
-                        </div>
-                        <div>
-                          <label className="block text-sm font-bold text-white/50 mb-3 uppercase tracking-wider">Clip Duration (s)</label>
-                          <input
-                            type="range"
-                            min="2"
-                            max="10"
-                            value={params.video_clip_duration}
-                            onChange={(e) => setParams({ ...params, video_clip_duration: parseInt(e.target.value) })}
-                            className="w-full accent-primary mt-2"
-                          />
-                          <div className="flex justify-between text-xs text-white/30 mt-1">
-                            <span>2s</span>
-                            <span>{params.video_clip_duration}s</span>
-                            <span>10s</span>
-                          </div>
-                        </div>
-                        <div>
-                          <label className="block text-sm font-bold text-white/50 mb-3 uppercase tracking-wider">Video Duration (s)</label>
-                          <input
-                            type="range"
-                            min="20"
-                            max="200"
-                            value={params.video_duration}
-                            onChange={(e) => setParams({ ...params, video_duration: parseInt(e.target.value) })}
-                            className="w-full accent-primary mt-2"
-                          />
-                          <div className="flex justify-between text-xs text-white/30 mt-1">
-                            <span>20s</span>
-                            <span>{params.video_duration}s</span>
-                            <span>200s</span>
-                          </div>
                         </div>
                       </motion.div>
                     )}
@@ -331,42 +297,40 @@ export const VideoGenerator = () => {
                       >
                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                                <label className="block text-sm font-bold text-white/50 mb-3 uppercase tracking-wider">Voice Character</label>
+                                <label className="block text-sm font-bold text-white/50 mb-3 uppercase tracking-wider">Stop Loss Method</label>
                                 <select
                                     value={params.voice_name}
                                     onChange={(e) => setParams({ ...params, voice_name: e.target.value })}
                                     className="w-full bg-[#121212] border border-white/10 rounded-2xl px-6 py-4 text-white focus:outline-none cursor-pointer"
                                 >
-                                    <option value="en-US-AvaNeural-Female">Ava (English - Female)</option>
-                                    <option value="en-US-AndrewNeural-Male">Andrew (English - Male)</option>
-                                    <option value="bn-BD-NabanitaNeural-Female">Nabanita (Bengali - Female)</option>
-                                    <option value="bn-BD-PradeepNeural-Male">Pradeep (Bengali - Male)</option>
+                                    <option value="en-US-AvaNeural-Female">Fixed Percentage</option>
+                                    <option value="en-US-AndrewNeural-Male">Trailing Stop (ATR based)</option>
+                                    <option value="bn-BD-NabanitaNeural-Female">Support/Resistance (Dynamic)</option>
                                 </select>
                             </div>
                             <div>
-                                <label className="block text-sm font-bold text-white/50 mb-3 uppercase tracking-wider">BGM Selection</label>
+                                <label className="block text-sm font-bold text-white/50 mb-3 uppercase tracking-wider">Take Profit Strategy</label>
                                 <select
                                     value={params.bgm_type}
                                     onChange={(e) => setParams({ ...params, bgm_type: e.target.value })}
                                     className="w-full bg-[#121212] border border-white/10 rounded-2xl px-6 py-4 text-white focus:outline-none cursor-pointer"
                                 >
-                                    <option value="random">Random Selection</option>
-                                    <option value="calm">Calm & Minimal</option>
-                                    <option value="energetic">Energetic & Fast</option>
-                                    <option value="none">No Background Music</option>
+                                    <option value="random">Partial Scalp (50% at TP1)</option>
+                                    <option value="calm">Fixed Target</option>
+                                    <option value="energetic">Trailing TP</option>
                                 </select>
                             </div>
                          </div>
                          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                             <div>
                                 <label className="flex justify-between text-xs font-bold text-white/50 mb-3 uppercase tracking-wider">
-                                    <span>Voice Speed</span>
-                                    <span className="text-white">{params.voice_rate}x</span>
+                                    <span>Max Drawdown Limit</span>
+                                    <span className="text-white">{params.voice_rate}%</span>
                                 </label>
                                 <input
                                     type="range"
                                     min="0.5"
-                                    max="2.0"
+                                    max="5.0"
                                     step="0.1"
                                     value={params.voice_rate}
                                     onChange={(e) => setParams({ ...params, voice_rate: parseFloat(e.target.value) })}
@@ -375,7 +339,7 @@ export const VideoGenerator = () => {
                             </div>
                             <div>
                                 <label className="flex justify-between text-xs font-bold text-white/50 mb-3 uppercase tracking-wider">
-                                    <span>BGM Volume</span>
+                                    <span>Trailing Step</span>
                                     <span className="text-white">{Math.round((params.bgm_volume || 0) * 100)}%</span>
                                 </label>
                                 <input
@@ -392,239 +356,6 @@ export const VideoGenerator = () => {
                       </motion.div>
                     )}
 
-                    {activeTab === "subtitles" && (
-                      <motion.div
-                        key="tab-subtitles"
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -10 }}
-                        className="space-y-8"
-                      >
-                         <div className="flex flex-wrap gap-6 items-center">
-                            <label className="flex items-center gap-3 cursor-pointer group">
-                                <div className="relative">
-                                    <input 
-                                        type="checkbox" 
-                                        checked={params.subtitle_enabled}
-                                        onChange={(e) => setParams({ ...params, subtitle_enabled: e.target.checked })}
-                                        className="sr-only" 
-                                    />
-                                    <div className={cn("w-12 h-6 rounded-full transition-colors", params.subtitle_enabled ? "bg-primary" : "bg-white/10")} />
-                                    <div className={cn("absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform", params.subtitle_enabled ? "translate-x-6" : "translate-x-0")} />
-                                </div>
-                                <span className="font-bold text-sm text-white">Enable Subtitles</span>
-                            </label>
-
-                            <label className="flex items-center gap-3 cursor-pointer group">
-                                <div className="relative">
-                                    <input 
-                                        type="checkbox" 
-                                        checked={params.enable_word_highlighting}
-                                        onChange={(e) => setParams({ ...params, enable_word_highlighting: e.target.checked })}
-                                        className="sr-only" 
-                                    />
-                                    <div className={cn("w-12 h-6 rounded-full transition-colors", params.enable_word_highlighting ? "bg-primary" : "bg-white/10")} />
-                                    <div className={cn("absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform", params.enable_word_highlighting ? "translate-x-6" : "translate-x-0")} />
-                                </div>
-                                <span className="font-bold text-sm text-white">Word Highlighting</span>
-                            </label>
-                         </div>
-
-                         {/* Subtitle Position Visual Selector */}
-                         {params.subtitle_enabled && (
-                            <div className="p-6 rounded-3xl bg-white/5 border border-white/10 space-y-6">
-                                <div className="flex items-center justify-between">
-                                    <div>
-                                        <h4 className="text-white font-bold mb-1">Live Preview</h4>
-                                        <p className="text-white/40 text-xs uppercase tracking-widest font-bold">Adjust position, font and colors below</p>
-                                    </div>
-                                    <select
-                                        value={params.subtitle_position}
-                                        onChange={(e) => {
-                                            const pos = e.target.value;
-                                            let custom = 70.0;
-                                            if (pos === "top") custom = 10.0;
-                                            else if (pos === "center") custom = 50.0;
-                                            else if (pos === "bottom") custom = 85.0;
-                                            setParams({ ...params, subtitle_position: pos, custom_position: custom });
-                                        }}
-                                        className="bg-[#121212] border border-white/10 rounded-xl px-4 py-2 text-xs text-white focus:outline-none cursor-pointer"
-                                    >
-                                        <option value="top">Top</option>
-                                        <option value="center">Center</option>
-                                        <option value="bottom">Bottom</option>
-                                        <option value="custom">Custom</option>
-                                    </select>
-                                </div>
-
-                                <div className="flex justify-center items-center py-6 bg-black/60 rounded-2xl border border-white/5 relative overflow-hidden group">
-                                    <div 
-                                        className={cn(
-                                            "relative border-2 border-white/20 rounded-lg transition-all duration-500 cursor-crosshair overflow-hidden shadow-2xl",
-                                            getAspectRatioClass(params.video_aspect || "16:9")
-                                        )}
-                                        onClick={(e) => {
-                                            const rect = e.currentTarget.getBoundingClientRect();
-                                            const y = ((e.clientY - rect.top) / rect.height) * 100;
-                                            setParams({ 
-                                                ...params, 
-                                                subtitle_position: "custom", 
-                                                custom_position: parseFloat(y.toFixed(1)) 
-                                            });
-                                        }}
-                                    >
-                                        {/* Real Image Background */}
-                                        <img 
-                                            src={getPreviewImage(params.video_aspect || "16:9")} 
-                                            alt="Preview Background" 
-                                            className="absolute inset-0 w-full h-full object-cover opacity-60 transition-opacity duration-700"
-                                        />
-                                        
-                                        {/* Dynamic Subtitle Placeholder */}
-                                        <motion.div 
-                                            animate={{ top: `${params.custom_position}%` }}
-                                            transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                                            className="absolute left-0 right-0 flex justify-center px-4 pointer-events-none"
-                                        >
-                                            <div 
-                                                className="backdrop-blur-md px-3 py-1.5 rounded border border-white/20 shadow-2xl transition-colors duration-300"
-                                                style={{ 
-                                                    backgroundColor: typeof params.text_background_color === "string" 
-                                                        ? params.text_background_color + "CC" // Add transparency
-                                                        : params.text_background_color === true 
-                                                            ? "rgba(0,0,0,0.8)" 
-                                                            : "transparent",
-                                                    border: params.text_background_color === false ? "none" : "1px solid rgba(255,255,255,0.2)"
-                                                }}
-                                            >
-                                                <div 
-                                                    className="text-center font-bold whitespace-nowrap leading-tight"
-                                                    style={{ 
-                                                        color: params.text_fore_color,
-                                                        fontSize: Math.max(8, (params.font_size || 60) / 6) + "px",
-                                                        fontFamily: fontMap[params.font_name || "STHeitiMedium.ttc"] || "sans-serif",
-                                                        textShadow: params.text_background_color === false ? "0 1px 3px rgba(0,0,0,1)" : "none"
-                                                    }}
-                                                >
-                                                    {params.enable_word_highlighting ? (
-                                                        <>
-                                                            SAMPLE <span style={{ color: params.word_highlight_color }}>SUBTITLE</span> TEXT
-                                                        </>
-                                                    ) : (
-                                                        "SAMPLE SUBTITLE TEXT"
-                                                    )}
-                                                </div>
-                                            </div>
-                                        </motion.div>
-
-                                        {/* Interactive Hover Hint */}
-                                        <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
-                                            <span className="text-[10px] text-white/50 font-bold tracking-widest uppercase">Click to Move</span>
-                                        </div>
-                                    </div>
-                                    <div className="absolute bottom-2 right-4 text-[10px] font-mono text-white/30">
-                                        {params.video_aspect} • Y: {params.custom_position}%
-                                    </div>
-                                </div>
-                            </div>
-                         )}
-
-                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <label className="block text-sm font-bold text-white/50 mb-3 uppercase tracking-wider">Font Style</label>
-                                <select
-                                    value={params.font_name}
-                                    onChange={(e) => setParams({ ...params, font_name: e.target.value })}
-                                    className="w-full bg-[#121212] border border-white/10 rounded-2xl px-6 py-4 text-white focus:outline-none cursor-pointer"
-                                >
-                                    <option value="STHeitiMedium.ttc">Heiti Medium (Standard)</option>
-                                    <option value="MicrosoftYaHeiBold.ttc">YaHei Bold (Professional)</option>
-                                    <option value="Charm-Bold.ttf">Charm Bold (Stylized)</option>
-                                    <option value="UTM Kabel KT.ttf">UTM Kabel (Modern)</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label className="block text-sm font-bold text-white/50 mb-3 uppercase tracking-wider">Font Size</label>
-                                <div className="flex gap-4">
-                                    <input
-                                        type="range"
-                                        min="20"
-                                        max="120"
-                                        value={params.font_size}
-                                        onChange={(e) => setParams({ ...params, font_size: parseInt(e.target.value) })}
-                                        className="flex-1 accent-primary"
-                                    />
-                                    <span className="text-white font-mono w-12 text-right">{params.font_size}</span>
-                                </div>
-                            </div>
-                            <div className="flex gap-4">
-                                <div className="flex-1">
-                                    <label className="block text-sm font-bold text-white/50 mb-3 uppercase tracking-wider">Text Color</label>
-                                    <div className="flex items-center gap-3 p-3 bg-white/5 rounded-2xl border border-white/10">
-                                        <input
-                                            type="color"
-                                            value={params.text_fore_color}
-                                            onChange={(e) => setParams({ ...params, text_fore_color: e.target.value })}
-                                            className="w-10 h-10 bg-transparent rounded-lg cursor-pointer border-0"
-                                        />
-                                        <span className="text-sm font-mono text-white/50 uppercase">{params.text_fore_color}</span>
-                                    </div>
-                                </div>
-                                {params.enable_word_highlighting && (
-                                    <div className="flex-1">
-                                        <label className="block text-sm font-bold text-white/50 mb-3 uppercase tracking-wider">Highlight</label>
-                                        <div className="flex items-center gap-3 p-3 bg-white/5 rounded-2xl border border-white/10">
-                                            <input
-                                                type="color"
-                                                value={params.word_highlight_color}
-                                                onChange={(e) => setParams({ ...params, word_highlight_color: e.target.value })}
-                                                className="w-10 h-10 bg-transparent rounded-lg cursor-pointer border-0"
-                                            />
-                                            <span className="text-sm font-mono text-white/50 uppercase">{params.word_highlight_color}</span>
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-                            <div className="flex gap-4">
-                                <div className="flex-1">
-                                    <label className="block text-sm font-bold text-white/50 mb-3 uppercase tracking-wider">Background Box</label>
-                                    <div className="flex items-center gap-4">
-                                        <label className="flex items-center gap-3 cursor-pointer group">
-                                            <div className="relative">
-                                                <input 
-                                                    type="checkbox" 
-                                                    checked={params.text_background_color !== false}
-                                                    onChange={(e) => setParams({ ...params, text_background_color: e.target.checked ? "#000000" : false })}
-                                                    className="sr-only" 
-                                                />
-                                                <div className={cn("w-12 h-6 rounded-full transition-colors", params.text_background_color !== false ? "bg-primary" : "bg-white/10")} />
-                                                <div className={cn("absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform", params.text_background_color !== false ? "translate-x-6" : "translate-x-0")} />
-                                            </div>
-                                            <span className="font-bold text-sm text-white">{params.text_background_color !== false ? "Enabled" : "None"}</span>
-                                        </label>
-                                    </div>
-                                </div>
-                                {params.text_background_color !== false && (
-                                    <div className="flex-1">
-                                        <label className="block text-sm font-bold text-white/50 mb-3 uppercase tracking-wider">Box Color</label>
-                                        <div className="flex items-center gap-3 p-3 bg-white/5 rounded-2xl border border-white/10">
-                                            <input
-                                                type="color"
-                                                value={typeof params.text_background_color === "string" ? params.text_background_color : "#000000"}
-                                                onChange={(e) => setParams({ ...params, text_background_color: e.target.value })}
-                                                className="w-10 h-10 bg-transparent rounded-lg cursor-pointer border-0"
-                                            />
-                                            <span className="text-sm font-mono text-white/50 uppercase">
-                                                {typeof params.text_background_color === "string" ? params.text_background_color : "#000000"}
-                                            </span>
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-                         </div>
-                      </motion.div>
-                    )}
-
                     {activeTab === "advanced" && (
                         <motion.div
                             key="tab-advanced"
@@ -634,28 +365,29 @@ export const VideoGenerator = () => {
                             className="space-y-6"
                         >
                             <div className="p-6 rounded-[2rem] bg-primary/10 border border-primary/20 flex gap-4">
-                                <Sparkles className="w-8 h-8 text-primary shrink-0" />
+                                <TrendingUp className="w-8 h-8 text-primary shrink-0" />
                                 <div>
-                                    <h4 className="text-white font-bold mb-1">AI Intelligence Tuning</h4>
-                                    <p className="text-white/60 text-sm">Fine-tune how Britannic AI selects and processes your video materials.</p>
+                                    <h4 className="text-white font-bold mb-1">AI Market Sentiment Integration</h4>
+                                    <p className="text-white/60 text-sm">Fine-tune how the algorithm interprets global news sentiment before executing a signal.</p>
                                 </div>
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div>
-                                    <label className="block text-sm font-bold text-white/50 mb-3 uppercase tracking-wider">Segmentation Method</label>
+                                    <label className="block text-sm font-bold text-white/50 mb-3 uppercase tracking-wider">Sentiment Weight</label>
                                     <select
                                         value={params.segmentation_method}
                                         onChange={(e) => setParams({ ...params, segmentation_method: e.target.value })}
                                         className="w-full bg-[#121212] border border-white/10 rounded-2xl px-6 py-4 text-white focus:outline-none cursor-pointer"
                                     >
-                                        <option value="sentences">By Sentences (Recommended)</option>
-                                        <option value="paragraphs">By Paragraphs</option>
+                                        <option value="sentences">High (Override Technicals)</option>
+                                        <option value="paragraphs">Balanced</option>
+                                        <option value="ignore">Ignore Sentiment</option>
                                     </select>
                                 </div>
                                 <div>
                                     <label className="flex justify-between text-sm font-bold text-white/50 mb-3 uppercase tracking-wider">
-                                        <span>Similarity Threshold</span>
+                                        <span>Volatility Tolerance</span>
                                         <span className="text-white">{params.similarity_threshold}</span>
                                     </label>
                                     <input
@@ -667,36 +399,6 @@ export const VideoGenerator = () => {
                                         onChange={(e) => setParams({ ...params, similarity_threshold: parseFloat(e.target.value) })}
                                         className="w-full accent-primary mt-2"
                                     />
-                                </div>
-                                <div>
-                                    <label className="flex justify-between text-sm font-bold text-white/50 mb-3 uppercase tracking-wider">
-                                        <span>Max Video Reuse</span>
-                                        <span className="text-white">{params.max_video_reuse || 2}</span>
-                                    </label>
-                                    <input
-                                        type="range"
-                                        min="1"
-                                        max="5"
-                                        step="1"
-                                        value={params.max_video_reuse || 2}
-                                        onChange={(e) => setParams({ ...params, max_video_reuse: parseInt(e.target.value) })}
-                                        className="w-full accent-primary mt-2"
-                                    />
-                                </div>
-                                <div className="flex items-center gap-3 cursor-pointer group">
-                                    <label className="flex items-center gap-3 cursor-pointer">
-                                        <div className="relative">
-                                            <input 
-                                                type="checkbox" 
-                                                checked={params.enable_image_similarity}
-                                                onChange={(e) => setParams({ ...params, enable_image_similarity: e.target.checked })}
-                                                className="sr-only" 
-                                            />
-                                            <div className={cn("w-12 h-6 rounded-full transition-colors", params.enable_image_similarity ? "bg-primary" : "bg-white/10")} />
-                                            <div className={cn("absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform", params.enable_image_similarity ? "translate-x-6" : "translate-x-0")} />
-                                        </div>
-                                        <span className="font-bold text-sm text-white">CLIP Image Similarity</span>
-                                    </label>
                                 </div>
                             </div>
                         </motion.div>
@@ -712,13 +414,13 @@ export const VideoGenerator = () => {
                   >
                     <span className="relative z-10 flex items-center justify-center gap-3">
                       {isSubmitting ? (
-                        <>Initializing Generation Pipeline... <Loader2 className="w-6 h-6 animate-spin" /></>
+                        <>Deploying Strategy... <Loader2 className="w-6 h-6 animate-spin" /></>
                       ) : (
-                        <>Launch Generation <Zap className="w-6 h-6 fill-black" /></>
+                        <>Activate Strategy <Zap className="w-6 h-6 fill-black" /></>
                       )}
                     </span>
                   </button>
-                  <p className="text-center text-xs text-white/20 mt-4 uppercase tracking-widest font-bold">Powered by BritTube v2.0 AI Engine</p>
+                  <p className="text-center text-xs text-white/20 mt-4 uppercase tracking-widest font-bold">Powered by TradeAuto API v2.0</p>
                 </div>
               </motion.form>
             ) : (
@@ -775,50 +477,25 @@ export const VideoGenerator = () => {
 
                     <div>
                       <h3 className="text-2xl font-bold text-white mb-2">
-                        {status.state === 4 ? "Generating Content..." : status.state === 1 ? "Video Ready!" : "Generation Failed"}
+                        {status.state === 4 ? "Deploying Strategy..." : status.state === 1 ? "Strategy Active!" : "Deployment Failed"}
                       </h3>
                       <p className="text-muted/80 text-sm max-w-md mx-auto">
-                        {(status.message || "").startsWith("Error:") ? (status.message || "").replace("Error:", "").trim() : (status.message || "An unknown error occurred during generation.")}
+                        {(status.message || "").startsWith("Error:") ? (status.message || "").replace("Error:", "").trim() : (status.message || "An unknown error occurred during deployment.")}
                       </p>
                     </div>
 
-                    {status.state === 1 && status.video_url && (
+                    {status.state === 1 && (
                       <motion.div
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         className="space-y-6"
                       >
-                         <div className="relative aspect-video rounded-3xl overflow-hidden border border-white/10 group">
-                            <video 
-                              src={status.video_url.startsWith("http") ? status.video_url : `${TASKS_BASE_URL}${status.video_url}`} 
-                              controls 
-                              className="w-full h-full object-cover"
-                            />
-                         </div>
                          <div className="flex justify-center gap-4">
-                            <button 
-                              onClick={(e) => handleDownload(
-                                e,
-                                status.video_url.startsWith("http") ? status.video_url : `${TASKS_BASE_URL}${status.video_url}`,
-                                `brittube-${status.id?.slice(0, 6) || "video"}.mp4`
-                              )}
-                              disabled={downloadingUrl === (status.video_url.startsWith("http") ? status.video_url : `${TASKS_BASE_URL}${status.video_url}`)}
-                              className="px-8 py-3 rounded-xl bg-white text-black font-bold hover:scale-105 transition-transform disabled:opacity-75 disabled:hover:scale-100 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                            >
-                              {downloadingUrl === (status.video_url.startsWith("http") ? status.video_url : `${TASKS_BASE_URL}${status.video_url}`) ? (
-                                <>
-                                  <div className="w-4 h-4 rounded-full border-2 border-black/30 border-t-black animate-spin" />
-                                  Downloading...
-                                </>
-                              ) : (
-                                "Download Video"
-                              )}
-                            </button>
                             <button 
                               onClick={handleReset}
                               className="px-8 py-3 rounded-xl bg-white/5 border border-white/10 text-white font-bold hover:bg-white/10 transition-colors flex items-center gap-2"
                             >
-                              Create New <RefreshCcw className="w-4 h-4" />
+                              Configure New Strategy <RefreshCcw className="w-4 h-4" />
                             </button>
                          </div>
                       </motion.div>

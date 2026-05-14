@@ -6,10 +6,10 @@ import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { 
   Zap, 
-  Video, 
-  Sparkles, 
-  Share2, 
-  Smartphone, 
+  LineChart,
+  ShieldCheck,
+  Activity,
+  Layers,
   Clock 
 } from "lucide-react";
 import { cn } from "../../lib/utils";
@@ -18,40 +18,40 @@ gsap.registerPlugin(ScrollTrigger);
 
 const features = [
   {
-    title: "Instant Scripting",
-    description: "Generate high-converting video scripts in seconds with our advanced AI cinematic engine.",
-    icon: Sparkles,
-    color: "from-purple-500 to-indigo-500",
-  },
-  {
-    title: "1-Click Generation",
-    description: "From idea to final render in a single click. Our pipeline handles everything automatically.",
+    title: "Instant Signal Execution",
+    description: "Execute high-intent trading signals instantly across multiple exchanges with zero manual intervention.",
     icon: Zap,
-    color: "from-blue-500 to-cyan-500",
-  },
-  {
-    title: "Cinematic Assets",
-    description: "Automatically retrieve high-quality 4K stock footage that matches your script perfectly.",
-    icon: Video,
-    color: "from-pink-500 to-rose-500",
-  },
-  {
-    title: "Social Optimization",
-    description: "Multi-platform support for TikTok, Reels, and Shorts with optimized aspect ratios.",
-    icon: Smartphone,
-    color: "from-orange-500 to-amber-500",
-  },
-  {
-    title: "Automated Voiceover",
-    description: "Human-like AI voices in 50+ languages with perfect emotional timing and pacing.",
-    icon: Clock,
     color: "from-emerald-500 to-teal-500",
   },
   {
-    title: "Viral Export",
-    description: "Export directly to your social media accounts with auto-generated captions and tags.",
-    icon: Share2,
-    color: "from-indigo-500 to-blue-500",
+    title: "Advanced Risk Management",
+    description: "Automated stop-loss, take-profit, and trailing stops to protect your capital dynamically.",
+    icon: ShieldCheck,
+    color: "from-blue-500 to-cyan-500",
+  },
+  {
+    title: "Real-Time Market Data",
+    description: "Algorithms driven by sub-second latency market data ensuring you never miss a trend.",
+    icon: Activity,
+    color: "from-amber-500 to-orange-500",
+  },
+  {
+    title: "Multi-Exchange Support",
+    description: "Seamlessly connect via encrypted API keys to Binance, Bybit, OKX, and Coinbase.",
+    icon: Layers,
+    color: "from-indigo-500 to-purple-500",
+  },
+  {
+    title: "24/7 Passive Trading",
+    description: "Our bots monitor the markets around the clock, executing strategies while you sleep.",
+    icon: Clock,
+    color: "from-rose-500 to-pink-500",
+  },
+  {
+    title: "Performance Analytics",
+    description: "Deep dive into your portfolio's growth with transparent, real-time historical logs.",
+    icon: LineChart,
+    color: "from-cyan-500 to-blue-600",
   },
 ];
 
@@ -118,15 +118,15 @@ export const Features = () => {
       <div className="max-w-7xl mx-auto">
         <div ref={headerRef} className="text-center mb-24">
           <h2 className="text-sm font-bold tracking-[0.2em] text-primary uppercase mb-4">
-            Core Capabilities
+            Institutional Infrastructure
           </h2>
           <h1 className="text-4xl md:text-6xl font-black text-white mb-6">
             Everything you need for <br />
-            <span className="text-gradient">Viral Automation</span>
+            <span className="text-gradient">Passive Wealth Generation</span>
           </h1>
           <p className="max-w-2xl mx-auto text-muted text-lg">
-            BritTube combines cutting-edge AI with seamless automation 
-            to help you dominate social media platforms.
+            TradeAuto combines cutting-edge algorithms with seamless automation
+            to help you dominate the crypto markets with precision.
           </p>
         </div>
 

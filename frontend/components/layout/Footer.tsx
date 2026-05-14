@@ -1,5 +1,5 @@
 import React from "react";
-import { Cpu, Zap, Layers, Play, Mail } from "lucide-react";
+import { TrendingUp, Shield, Activity, HelpCircle, Mail } from "lucide-react";
 import Link from "next/link";
 
 export const Footer = () => {
@@ -10,25 +10,22 @@ export const Footer = () => {
           <div className="col-span-1 md:col-span-1">
             <Link href="/" className="flex items-center gap-2 mb-6 group">
               <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-secondary flex items-center justify-center group-hover:scale-110 transition-transform">
-                <Cpu className="w-5 h-5 text-white" />
+                <TrendingUp className="w-5 h-5 text-white" />
               </div>
               <span className="text-lg font-bold text-white">
-                Brit<span className="text-primary">Tube</span>
+                Trade<span className="text-primary">Auto</span>
               </span>
             </Link>
             <p className="text-muted text-sm leading-relaxed mb-6">
-              The world's most advanced AI video automation platform. 
-              Built for creators, by creators.
+              Secure, non-custodial automated trading platform. Execute passive trading strategies
+              with high-intent crypto signals.
             </p>
             <div className="flex gap-4">
               <a href="#" className="w-10 h-10 rounded-full glass border-white/10 flex items-center justify-center hover:text-primary transition-colors">
-                <Zap className="w-5 h-5" />
+                <Shield className="w-5 h-5" />
               </a>
               <a href="#" className="w-10 h-10 rounded-full glass border-white/10 flex items-center justify-center hover:text-primary transition-colors">
-                <Layers className="w-5 h-5" />
-              </a>
-              <a href="#" className="w-10 h-10 rounded-full glass border-white/10 flex items-center justify-center hover:text-primary transition-colors">
-                <Play className="w-5 h-5" />
+                <Activity className="w-5 h-5" />
               </a>
             </div>
           </div>
@@ -37,19 +34,19 @@ export const Footer = () => {
             <h4 className="text-white font-bold mb-6">Platform</h4>
             <ul className="space-y-4">
               <li><Link href="#features" className="text-muted hover:text-white transition-colors text-sm">Features</Link></li>
-              <li><Link href="#showcase" className="text-muted hover:text-white transition-colors text-sm">Showcase</Link></li>
-              <li><Link href="#" className="text-muted hover:text-white transition-colors text-sm">Pricing</Link></li>
-              <li><Link href="#" className="text-muted hover:text-white transition-colors text-sm">API Docs</Link></li>
+              <li><Link href="#showcase" className="text-muted hover:text-white transition-colors text-sm">Live Results</Link></li>
+              <li><Link href="#pricing" className="text-muted hover:text-white transition-colors text-sm">Pricing</Link></li>
+              <li><Link href="#faq" className="text-muted hover:text-white transition-colors text-sm">FAQ</Link></li>
             </ul>
           </div>
 
           <div>
-            <h4 className="text-white font-bold mb-6">Company</h4>
+            <h4 className="text-white font-bold mb-6">Legal</h4>
             <ul className="space-y-4">
-              <li><Link href="#" className="text-muted hover:text-white transition-colors text-sm">About Us</Link></li>
-              <li><Link href="#" className="text-muted hover:text-white transition-colors text-sm">Blog</Link></li>
-              <li><Link href="#" className="text-muted hover:text-white transition-colors text-sm">Careers</Link></li>
-              <li><Link href="#" className="text-muted hover:text-white transition-colors text-sm">Privacy</Link></li>
+              <li><Link href="#" className="text-muted hover:text-white transition-colors text-sm">Terms & Conditions</Link></li>
+              <li><Link href="#" className="text-muted hover:text-white transition-colors text-sm">Privacy Policy</Link></li>
+              <li><Link href="#" className="text-muted hover:text-white transition-colors text-sm">Risk Disclosure</Link></li>
+              <li><Link href="#" className="text-muted hover:text-white transition-colors text-sm">AML Policy</Link></li>
             </ul>
           </div>
 
@@ -69,14 +66,21 @@ export const Footer = () => {
           </div>
         </div>
 
-        <div className="pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4">
+        <div className="mt-12 p-6 bg-white/5 border border-white/10 rounded-2xl">
+          <h4 className="text-white font-bold text-sm mb-2">High-Risk Warning</h4>
+          <p className="text-muted text-xs leading-relaxed">
+            Trading cryptocurrencies and executing automated trading strategies carries a high level of risk, and may not be suitable for all investors. Before deciding to trade cryptocurrency you should carefully consider your investment objectives, level of experience, and risk appetite. The possibility exists that you could sustain a loss of some or all of your initial investment and therefore you should not invest money that you cannot afford to lose. You should be aware of all the risks associated with cryptocurrency trading, and seek advice from an independent financial advisor if you have any doubts.
+          </p>
+        </div>
+
+        <div className="pt-8 mt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-muted text-xs">
-            © 2026 BritTube. All rights reserved.
+            © 2026 TradeAuto. All rights reserved.
           </p>
           <div className="flex gap-8 text-xs text-muted">
-            <Link href="#" className="hover:text-white transition-colors">Terms of Service</Link>
+            <Link href="#" className="hover:text-white transition-colors">Terms & Conditions</Link>
             <Link href="#" className="hover:text-white transition-colors">Privacy Policy</Link>
-            <Link href="#" className="hover:text-white transition-colors">Cookie Policy</Link>
+            <Link href="#" className="hover:text-white transition-colors">Risk Disclosure</Link>
           </div>
         </div>
       </div>
