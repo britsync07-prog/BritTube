@@ -58,16 +58,25 @@ export interface VideoTaskParams {
   // Misc Settings
   n_threads?: number;
   paragraph_number?: number;
+  video_script_prompt?: string;
+  custom_system_prompt?: string;
 }
 
 export interface TaskStatus {
-  id: string;
+  task_id: string;
   state: number;
   progress: number;
-  message: string;
-  video_url: string;
-  created_at: string;
-  updated_at: string;
+  message?: string;
+  video_url?: string;
+  videos?: string[];
+  combined_videos?: string[];
+  script?: string;
+  terms?: string[];
+  audio_file?: string;
+  audio_duration?: number;
+  subtitle_path?: string;
+  materials?: string[];
+  created_at?: string;
 }
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:9090/api/v1";
@@ -76,7 +85,7 @@ export const api = {
   createTask: async (params: VideoTaskParams): Promise<{ task_id: string }> => {
     try {
       const token = getToken();
-      const response = await fetch(`${API_BASE}/tasks`, {
+      const response = await fetch(`${API_BASE}/videos`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -91,6 +100,8 @@ export const api = {
           const errorData = await response.json();
           if (errorData && errorData.detail) {
             errorMessage = errorData.detail;
+          } else if (errorData && errorData.message) {
+            errorMessage = errorData.message;
           }
         } catch (e) {
           // Fallback to status text
@@ -98,7 +109,13 @@ export const api = {
         throw new Error(errorMessage);
       }
 
-      return response.json();
+      const result = await response.json();
+      // Backend returns { status: 200, data: { task_id: "..." } }
+      if (result.data && result.data.task_id) {
+        return { task_id: result.data.task_id };
+      }
+      // Fallback for direct response
+      return result;
     } catch (error) {
       console.error("API Error (createTask):", error);
       throw error;
@@ -115,6 +132,8 @@ export const api = {
           const errorData = await response.json();
           if (errorData && errorData.detail) {
             errorMessage = errorData.detail;
+          } else if (errorData && errorData.message) {
+            errorMessage = errorData.message;
           }
         } catch (e) {
           // If response is not JSON, use status text
@@ -122,7 +141,12 @@ export const api = {
         throw new Error(errorMessage);
       }
 
-      return response.json();
+      const result = await response.json();
+      // Backend returns { status: 200, data: { task_id, state, progress, ... } }
+      if (result.data) {
+        return result.data;
+      }
+      return result;
     } catch (error) {
       console.error("API Error (getTaskStatus):", error);
       throw error;
@@ -143,5 +167,13 @@ export const api = {
       console.error("API Error (getTaskHistory):", error);
       throw error;
     }
+  },
+
+  getDownloadUrl: (taskId: string, filename: string = "final-1.mp4"): string => {
+    return `${API_BASE}/download/${taskId}/${filename}`;
+  },
+
+  getStreamUrl: (taskId: string, filename: string = "final-1.mp4"): string => {
+    return `${API_BASE}/stream/${taskId}/${filename}`;
   }
 };

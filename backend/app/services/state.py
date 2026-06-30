@@ -1,4 +1,6 @@
 import ast
+import copy
+import threading
 from abc import ABC, abstractmethod
 
 from app.core.config import config
@@ -24,12 +26,14 @@ class BaseState(ABC):
 class MemoryState(BaseState):
     def __init__(self):
         self._tasks = {}
+        self._lock = threading.RLock()
 
     def get_all_tasks(self, page: int, page_size: int):
         start = (page - 1) * page_size
         end = start + page_size
-        tasks = list(self._tasks.values())
-        total = len(tasks)
+        with self._lock:
+            tasks = [copy.deepcopy(task) for task in self._tasks.values()]
+            total = len(tasks)
         return tasks[start:end], total
 
     def update_task(
@@ -43,23 +47,36 @@ class MemoryState(BaseState):
         if progress > 100:
             progress = 100
 
-        self._tasks[task_id] = {
-            "task_id": task_id,
-            "state": state,
-            "progress": progress,
-            **kwargs,
-        }
+        with self._lock:
+            self._tasks[task_id] = {
+                "task_id": task_id,
+                "state": state,
+                "progress": progress,
+                **kwargs,
+            }
 
     def get_task(self, task_id: str):
-        return self._tasks.get(task_id, None)
+        with self._lock:
+            task = self._tasks.get(task_id, None)
+            return copy.deepcopy(task) if task is not None else None
 
     def delete_task(self, task_id: str):
-        if task_id in self._tasks:
-            del self._tasks[task_id]
+        with self._lock:
+            self._tasks.pop(task_id, None)
 
 
 # Redis state management
 class RedisState(BaseState):
+    """
+    Redis-backed task state.
+
+    Trust boundary: Redis is expected to be private to this application. Task
+    values are written by MoneyPrinterTurbo and converted back from strings for
+    compatibility with existing state records. Do not expose this Redis database
+    to untrusted writers without replacing deserialization with a stricter
+    schema-based format.
+    """
+
     def __init__(self, host="localhost", port=6379, db=0, password=None):
         import redis
 
@@ -73,17 +90,27 @@ class RedisState(BaseState):
         total = 0
         while True:
             cursor, keys = self._redis.scan(cursor, count=page_size)
-            total += len(keys)
-            if total > start:
-                for key in keys[max(0, start - total):end - total]:
+            batch_start = total
+            batch_size = len(keys)
+            total += batch_size
+
+            # Redis SCAN 是分批返回 key。分页切片必须基于“当前批次起始索引”
+            # 计算，而不能用累积后的 total 反推，否则第一页会切到空数组，
+            # 第二页也可能只返回部分数据。
+            if batch_start < end and total > start:
+                slice_start = max(0, start - batch_start)
+                slice_end = min(batch_size, end - batch_start)
+                for key in keys[slice_start:slice_end]:
                     task_data = self._redis.hgetall(key)
                     task = {
-                        k.decode("utf-8"): self._convert_to_original_type(v) for k, v in task_data.items()
+                        k.decode("utf-8"): self._convert_to_original_type(v)
+                        for k, v in task_data.items()
                     }
                     tasks.append(task)
-                    if len(tasks) >= page_size:
-                        break
-            if cursor == 0 or len(tasks) >= page_size:
+
+            # 即使当前页已经取满，也要继续 SCAN 到 cursor=0，
+            # 因为调用方需要准确 total 来渲染分页信息。
+            if cursor == 0:
                 break
         return tasks, total
 
@@ -125,8 +152,12 @@ class RedisState(BaseState):
     @staticmethod
     def _convert_to_original_type(value):
         """
-        Convert the value from byte string to its original data type.
-        You can extend this method to handle other data types as needed.
+        Convert values written by this application back to common Python types.
+
+        This compatibility parser assumes Redis is inside the application's
+        trust boundary. If Redis can be written by untrusted clients, task state
+        should move to a strict JSON/schema parser instead of open-ended literal
+        conversion.
         """
         value_str = value.decode("utf-8")
 

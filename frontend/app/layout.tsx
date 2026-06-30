@@ -15,8 +15,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "BritTube | AI Video Automation",
-  description: "The most advanced AI video generation platform.",
+  title: "BritTube | AI Video Generator",
+  description: "Generate viral videos with AI. Create professional videos with AI script writing, text-to-speech, stock footage, and subtitles.",
+  keywords: "AI video generator, video creation, text to video, AI script, video maker",
 };
 
 export default function RootLayout({

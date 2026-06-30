@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "brittube": {
+      "command": "python",
+      "args": ["G:/myjob/BritTube/mcp/mcp_server.py"],
+      "env": {
+        "BRITTUBE_API_KEY": "bt_REPLACE_WITH_YOUR_KEY",
+        "BRITTUBE_BASE_URL": "http://localhost:9090"
+      }
+    }
+  }
+}

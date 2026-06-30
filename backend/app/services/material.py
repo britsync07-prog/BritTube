@@ -9,32 +9,36 @@ from loguru import logger
 from moviepy.video.io.VideoFileClip import VideoFileClip
 
 from app.core.config import config
-from app.models.schema import MaterialInfo, VideoAspect, VideoConcatMode, VideoParams
+from app.models.schema_mpt import MaterialInfo, VideoAspect, VideoConcatMode
 from app.utils import utils
-
-# Global cache for the semantic model to avoid reloading
-_semantic_model = None
-_semantic_model_lock = threading.Lock()
 
 # Thread-safe counter for API key rotation
 _api_key_counter = 0
 _api_key_lock = threading.Lock()
 
 
+def _get_tls_verify() -> bool:
+    # 默认开启 TLS 证书校验，防止素材搜索和下载过程被中间人篡改。
+    # 仅在企业代理、自签证书等明确需要的场景下，允许用户通过
+    # `config.toml` 显式设置 `tls_verify = false` 临时关闭。
+    tls_verify = config.app.get("tls_verify", True)
+    if isinstance(tls_verify, str):
+        tls_verify = tls_verify.strip().lower() not in ("0", "false", "no", "off")
+
+    if not tls_verify:
+        logger.warning(
+            "TLS certificate verification is disabled by config.app.tls_verify=false. "
+            "Only use this in trusted proxy environments."
+        )
+
+    return bool(tls_verify)
+
+
 def get_api_key(cfg_key: str):
     api_keys = config.app.get(cfg_key)
-    
     if not api_keys:
-        # Fallback to environment variables
-        env_key = cfg_key.upper().replace("_KEYS", "_KEY")
-        env_val = os.environ.get(env_key)
-        if env_val:
-            api_keys = env_val.split(",")
-
-    if not api_keys:
-        from app.core.config import config_file
         raise ValueError(
-            f"\n\n##### {cfg_key} is not set #####\n\nPlease set it in the config.toml file: {config_file} or in .env as {cfg_key.upper().replace('_KEYS', '_KEY')}\n\n"
+            f"\n\n##### {cfg_key} is not set #####\n\nPlease set it in the config.toml file: {config.config_file}\n\n"
             f"{utils.to_json(config.app)}"
         )
 
@@ -71,7 +75,7 @@ def search_videos_pexels(
             query_url,
             headers=headers,
             proxies=config.proxy,
-            verify=False,
+            verify=_get_tls_verify(),
             timeout=(30, 60),
         )
         response = r.json()
@@ -96,10 +100,6 @@ def search_videos_pexels(
                     item.provider = "pexels"
                     item.url = video["link"]
                     item.duration = duration
-                    # Pexels doesn't provide explicit tags in the search response, 
-                    # but we can use the video orientation and some hints from the URL if needed.
-                    item.tags = [] 
-                    item.description = f"{search_term} video"
                     video_items.append(item)
                     break
         return video_items
@@ -131,7 +131,7 @@ def search_videos_pixabay(
 
     try:
         r = requests.get(
-            query_url, proxies=config.proxy, verify=False, timeout=(30, 60)
+            query_url, proxies=config.proxy, verify=_get_tls_verify(), timeout=(30, 60)
         )
         response = r.json()
         video_items = []
@@ -156,8 +156,6 @@ def search_videos_pixabay(
                     item.provider = "pixabay"
                     item.url = video["url"]
                     item.duration = duration
-                    item.tags = [t.strip() for t in v.get("tags", "").split(",")]
-                    item.description = v.get("tags", "")
                     video_items.append(item)
                     break
         return video_items
@@ -167,7 +165,83 @@ def search_videos_pixabay(
     return []
 
 
-def save_video(video_url: str, save_dir: str = "", search_term: str = "", additional_info: dict = None) -> str:
+def search_videos_coverr(
+    search_term: str,
+    minimum_duration: int,
+    video_aspect: VideoAspect = VideoAspect.portrait,
+) -> List[MaterialInfo]:
+    """
+    Coverr (https://coverr.co) - free HD/4K stock videos,
+    subject to Coverr license terms (https://coverr.co/license).
+
+    Coverr API notes (based on official docs at api.coverr.co/docs/):
+      - 鉴权: Authorization: Bearer <api_key>
+      - 搜索端点: GET /videos?query=...,响应结构 {"hits": [...], ...}
+      - 加 ?urls=true 在搜索响应里直接返回 mp4 直链
+      - URL 是 signed JWT(绑定 API key,无过期时间)
+      - Coverr 库以 16:9 横屏为主,9:16 portrait 占比极低(约 1%)
+        因此本函数不做 aspect_ratio 过滤,由下游 video.py 的
+        resize + letterbox 逻辑统一处理
+      - duration 字段同时存在 number 和 string 两种形态,本函数都接受
+
+    本函数使用 urls.mp4_download 字段作为下载地址 —— 按 Coverr 官方文档
+    (https://api.coverr.co/docs/videos/#download-a-video) 的说法,
+    GET 这个 URL 本身就被 Coverr 当作一次合法的 download 事件计入统计,
+    无需再调用 PATCH /videos/:id/stats/downloads。
+    """
+    api_key = get_api_key("coverr_api_keys")
+    headers = {"Authorization": f"Bearer {api_key}"}
+    params = {
+        "query": search_term,
+        "page_size": 20,
+        "urls": "true",
+        "sort": "popular",
+    }
+    query_url = f"https://api.coverr.co/videos?{urlencode(params)}"
+    logger.info(f"searching videos: {query_url}, with proxies: {config.proxy}")
+
+    try:
+        r = requests.get(
+            query_url,
+            headers=headers,
+            proxies=config.proxy,
+            verify=_get_tls_verify(),
+            timeout=(30, 60),
+        )
+        response = r.json()
+        video_items: List[MaterialInfo] = []
+
+        if not isinstance(response, dict) or "hits" not in response:
+            logger.error(f"search videos failed: {response}")
+            return video_items
+
+        for v in response["hits"]:
+            # duration 在不同响应里可能是 number(11.625) 或 string("10.500000")
+            try:
+                duration = int(float(v.get("duration") or 0))
+            except (TypeError, ValueError):
+                continue
+            if duration < minimum_duration:
+                continue
+
+            video_id = v.get("id")
+            mp4_download_url = (v.get("urls") or {}).get("mp4_download")
+            if not video_id or not mp4_download_url:
+                continue
+
+            item = MaterialInfo()
+            item.provider = "coverr"
+            item.url = mp4_download_url
+            item.duration = duration
+            video_items.append(item)
+        return video_items
+    except Exception as e:
+        logger.error(f"search videos failed: {str(e)}")
+
+    return []
+
+
+def save_video(video_url: str, save_dir: str = "") -> str:
     if not save_dir:
         save_dir = utils.storage_dir("cache_videos")
 
@@ -182,10 +256,6 @@ def save_video(video_url: str, save_dir: str = "", search_term: str = "", additi
     # if video already exists, return the path
     if os.path.exists(video_path) and os.path.getsize(video_path) > 0:
         logger.info(f"video already exists: {video_path}")
-        # Even if it exists, ensure metadata is saved/updated
-        if search_term:
-            from app.services import semantic_video
-            semantic_video.save_video_metadata(video_path, search_term, additional_info)
         return video_path
 
     headers = {
@@ -193,25 +263,16 @@ def save_video(video_url: str, save_dir: str = "", search_term: str = "", additi
     }
 
     # if video does not exist, download it
-    try:
-        response = requests.get(
-            video_url,
-            headers=headers,
-            proxies=config.proxy,
-            verify=False,
-            timeout=(60, 240),
+    with open(video_path, "wb") as f:
+        f.write(
+            requests.get(
+                video_url,
+                headers=headers,
+                proxies=config.proxy,
+                verify=_get_tls_verify(),
+                timeout=(60, 240),
+            ).content
         )
-        with open(video_path, "wb") as f:
-            f.write(response.content)
-            
-        # Save metadata after successful download
-        if search_term:
-            from app.services import semantic_video
-            semantic_video.save_video_metadata(video_path, search_term, additional_info)
-            
-    except Exception as e:
-        logger.error(f"failed to download video from {video_url}: {str(e)}")
-        return ""
 
     if os.path.exists(video_path) and os.path.getsize(video_path) > 0:
         clip = None
@@ -225,117 +286,19 @@ def save_video(video_url: str, save_dir: str = "", search_term: str = "", additi
             logger.warning(f"invalid video file: {video_path} => {str(e)}")
             try:
                 os.remove(video_path)
-            except Exception:
-                pass
+            except Exception as remove_error:
+                logger.warning(
+                    f"failed to remove invalid video file: {video_path}, error: {str(remove_error)}"
+                )
         finally:
             if clip is not None:
                 try:
                     clip.close()
-                except Exception:
-                    pass
+                except Exception as close_error:
+                    logger.warning(
+                        f"failed to close video clip: {video_path}, error: {str(close_error)}"
+                    )
     return ""
-
-
-def _get_semantic_model(model_name: str = "all-mpnet-base-v2"):
-    global _semantic_model
-    with _semantic_model_lock:
-        if _semantic_model is None:
-            try:
-                from sentence_transformers import SentenceTransformer
-                logger.info(f"loading semantic model: {model_name}")
-                _semantic_model = SentenceTransformer(model_name)
-            except ImportError:
-                logger.error("sentence-transformers not installed, please run: pip install sentence-transformers")
-                return None
-        return _semantic_model
-
-
-def semantic_search(
-    script: str,
-    materials: List[MaterialInfo],
-    model_name: str = "all-mpnet-base-v2",
-    similarity_threshold: float = 0.5,
-) -> List[MaterialInfo]:
-    """
-    Find the best matching materials for a script using semantic similarity.
-    This now uses the robust implementation from semantic_video.py
-    """
-    if not materials:
-        return materials
-        
-    from app.services import semantic_video
-    
-    # Pre-load model
-    semantic_video.load_model(model_name)
-    
-    # For initial material filtering, we use the simple semantic search 
-    # The more complex selection happens in semantic_video.select_videos_for_script
-    # which is called during video concatenation.
-    
-    try:
-        from sklearn.metrics.pairwise import cosine_similarity
-        import numpy as np
-        
-        # Get the model
-        model = semantic_video.load_model(model_name)
-
-        # Encode the script (or its segments)
-        script_embedding = model.encode([script])
-
-        # Encode materials (using tags and description)
-        material_texts = [
-            f"{' '.join(m.tags) if m.tags else ''} {m.description} {m.search_term}".strip()
-            for m in materials
-        ]
-        material_embeddings = model.encode(material_texts)
-
-        # Calculate similarities
-        similarities = cosine_similarity(script_embedding, material_embeddings)[0]
-
-        # Pair materials with their scores
-        scored_materials = list(zip(materials, similarities))
-        
-        # Sort by similarity
-        scored_materials.sort(key=lambda x: x[1], reverse=True)
-
-        results = [m for m, score in scored_materials if score >= similarity_threshold]
-        
-        # If no results meet the threshold, return the top ones anyway
-        if not results:
-            results = [m for m, score in scored_materials[:20]]
-            
-        return results
-    except Exception as e:
-        logger.error(f"semantic matching failed: {str(e)}")
-        return materials
-
-
-def _get_clip_model(model_name: str = "clip-vit-base-patch32"):
-    try:
-        from transformers import CLIPProcessor, CLIPModel
-        import torch
-        logger.info(f"loading clip model: {model_name}")
-        model = CLIPModel.from_pretrained(f"openai/{model_name}")
-        processor = CLIPProcessor.from_pretrained(f"openai/{model_name}")
-        return model, processor
-    except Exception as e:
-        logger.error(f"failed to load clip model: {str(e)}")
-        return None, None
-
-
-def filter_similar_materials(
-    materials: List[MaterialInfo],
-    threshold: float = 0.9,
-    model_name: str = "clip-vit-base-patch32",
-) -> List[MaterialInfo]:
-    """
-    Remove visually similar materials using CLIP.
-    Note: For videos, this ideally would check frames, but for performance, 
-    it can check tags/descriptions or use a thumbnail if available. 
-    Here we'll use descriptions as a proxy if we can't easily get frames.
-    """
-    # ... placeholder or implementation ...
-    return materials
 
 
 def download_videos(
@@ -343,18 +306,37 @@ def download_videos(
     search_terms: List[str],
     source: str = "pexels",
     video_aspect: VideoAspect = VideoAspect.portrait,
-    video_contact_mode: VideoConcatMode = VideoConcatMode.random,
+    video_concat_mode: VideoConcatMode = VideoConcatMode.random,
     audio_duration: float = 0.0,
     max_clip_duration: int = 5,
-    video_params: VideoParams = None,
+    match_script_order: bool = False,
 ) -> List[str]:
-    valid_video_items = []
-    valid_video_urls = []
-    found_duration = 0.0
     search_videos = search_videos_pexels
     if source == "pixabay":
         search_videos = search_videos_pixabay
+    elif source == "coverr":
+        search_videos = search_videos_coverr
 
+    material_directory = config.app.get("material_directory", "").strip()
+    if material_directory == "task":
+        material_directory = utils.task_dir(task_id)
+    elif material_directory and not os.path.isdir(material_directory):
+        material_directory = ""
+
+    if match_script_order:
+        return _download_videos_by_script_order(
+            task_id=task_id,
+            search_terms=search_terms,
+            search_videos=search_videos,
+            video_aspect=video_aspect,
+            audio_duration=audio_duration,
+            max_clip_duration=max_clip_duration,
+            material_directory=material_directory,
+        )
+
+    valid_video_items = []
+    valid_video_urls = []
+    found_duration = 0.0
     for search_term in search_terms:
         video_items = search_videos(
             search_term=search_term,
@@ -365,7 +347,6 @@ def download_videos(
 
         for item in video_items:
             if item.url not in valid_video_urls:
-                item.search_term = search_term # Ensure search term is attached
                 valid_video_items.append(item)
                 valid_video_urls.append(item.url)
                 found_duration += item.duration
@@ -375,49 +356,16 @@ def download_videos(
     )
     video_paths = []
 
-    material_directory = config.app.get("material_directory", "").strip()
-    if material_directory == "task":
-        material_directory = utils.task_dir(task_id)
-    elif material_directory and not os.path.isdir(material_directory):
-        material_directory = ""
-
-    contact_mode_value = getattr(video_contact_mode, "value", video_contact_mode)
-    if contact_mode_value == VideoConcatMode.random.value:
+    concat_mode_value = getattr(video_concat_mode, "value", video_concat_mode)
+    if concat_mode_value == VideoConcatMode.random.value:
         random.shuffle(valid_video_items)
-    elif contact_mode_value == VideoConcatMode.semantic.value and video_params:
-        logger.info("starting semantic matching for video materials")
-        valid_video_items = semantic_search(
-            script=video_params.video_script,
-            materials=valid_video_items,
-            model_name=video_params.semantic_model,
-            similarity_threshold=video_params.similarity_threshold,
-        )
-
-    if video_params and video_params.enable_image_similarity:
-        logger.info("starting image similarity filtering")
-        valid_video_items = filter_similar_materials(
-            materials=valid_video_items,
-            threshold=video_params.image_similarity_threshold,
-            model_name=video_params.image_similarity_model,
-        )
 
     total_duration = 0.0
     for item in valid_video_items:
         try:
             logger.info(f"downloading video: {item.url}")
-            # Pass metadata information to save_video
-            additional_info = {
-                "thumbnail_url": item.thumbnail_url,
-                "preview_images": item.preview_images,
-                "tags": item.tags,
-                "description": item.description,
-                "provider": item.provider
-            }
             saved_video_path = save_video(
-                video_url=item.url, 
-                save_dir=material_directory,
-                search_term=item.search_term,
-                additional_info=additional_info
+                video_url=item.url, save_dir=material_directory
             )
             if saved_video_path:
                 logger.info(f"video saved: {saved_video_path}")
@@ -432,6 +380,93 @@ def download_videos(
         except Exception as e:
             logger.error(f"failed to download video: {utils.to_json(item)} => {str(e)}")
     logger.success(f"downloaded {len(video_paths)} videos")
+    return video_paths
+
+
+def _download_videos_by_script_order(
+    task_id: str,
+    search_terms: List[str],
+    search_videos,
+    video_aspect: VideoAspect,
+    audio_duration: float,
+    max_clip_duration: int,
+    material_directory: str,
+) -> List[str]:
+    """
+    按脚本文案顺序下载素材。
+
+    默认下载逻辑会把所有关键词的候选素材合并成一个大列表；如果第一个
+    关键词返回很多结果，最终下载时可能一直消耗这个关键词的素材，后续
+    脚本主题就排不上时间线。这里按关键词分组后轮询下载：
+    第 1 轮取每个关键词的第 1 个候选，第 2 轮取每个关键词的第 2 个候选。
+    这样在不重写视频合成引擎的前提下，尽量保证素材顺序贴近文案顺序。
+    """
+    logger.info("downloading videos with script-order material matching")
+    candidate_groups = []
+    valid_video_urls = set()
+    found_duration = 0.0
+
+    for search_term in search_terms:
+        video_items = search_videos(
+            search_term=search_term,
+            minimum_duration=max_clip_duration,
+            video_aspect=video_aspect,
+        )
+        logger.info(f"found {len(video_items)} videos for '{search_term}'")
+
+        term_items = []
+        for item in video_items:
+            if item.url in valid_video_urls:
+                continue
+            term_items.append(item)
+            valid_video_urls.add(item.url)
+            found_duration += item.duration
+
+        if term_items:
+            candidate_groups.append((search_term, term_items))
+
+    logger.info(
+        f"found total ordered video candidates: {sum(len(items) for _, items in candidate_groups)}, "
+        f"required duration: {audio_duration} seconds, found duration: {found_duration} seconds"
+    )
+
+    video_paths = []
+    total_duration = 0.0
+    candidate_index = 0
+    while candidate_groups and total_duration <= audio_duration:
+        has_candidate = False
+        for search_term, term_items in candidate_groups:
+            if candidate_index >= len(term_items):
+                continue
+
+            has_candidate = True
+            item = term_items[candidate_index]
+            try:
+                logger.info(
+                    f"downloading ordered video for '{search_term}': {item.url}"
+                )
+                saved_video_path = save_video(
+                    video_url=item.url, save_dir=material_directory
+                )
+                if saved_video_path:
+                    logger.info(f"video saved: {saved_video_path}")
+                    video_paths.append(saved_video_path)
+                    total_duration += min(max_clip_duration, item.duration)
+                    if total_duration > audio_duration:
+                        logger.info(
+                            f"total duration of downloaded videos: {total_duration} seconds, skip downloading more"
+                        )
+                        break
+            except Exception as e:
+                logger.error(
+                    f"failed to download ordered video: {utils.to_json(item)} => {str(e)}"
+                )
+
+        if not has_candidate:
+            break
+        candidate_index += 1
+
+    logger.success(f"downloaded {len(video_paths)} ordered videos")
     return video_paths
 
 

@@ -36,5 +36,5 @@ def login_user(db: Session, credentials: UserLogin) -> dict:
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Account is inactive",
         )
-    token = create_access_token({"sub": str(user.id), "email": user.email})
+    token = create_access_token({"sub": str(user.id), "email": user.email, "role": user.role})
     return {"access_token": token, "token_type": "bearer", "user": user}

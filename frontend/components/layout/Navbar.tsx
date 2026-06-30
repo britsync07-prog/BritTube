@@ -2,16 +2,15 @@
 
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, Cpu, Zap, Layers, Play } from "lucide-react";
+import { Menu, X, Film, Zap, Layers, Activity, HelpCircle } from "lucide-react";
 import Link from "next/link";
 import { cn } from "../../lib/utils";
 
 const navLinks = [
-  { name: "Features", href: "#features", icon: Cpu },
-  { name: "Showcase", href: "#showcase", icon: Play },
-  { name: "Generate", href: "#generate", icon: Zap },
-  { name: "Pricing", href: "#pricing", icon: Layers },
-  { name: "API", href: "#api", icon: Layers },
+  { name: "Features", href: "#features", icon: Zap },
+  { name: "Showcase", href: "#showcase", icon: Activity },
+  { name: "Create", href: "#generate", icon: Layers },
+  { name: "FAQ", href: "#faq", icon: HelpCircle },
 ];
 
 export const Navbar = () => {
@@ -42,7 +41,7 @@ export const Navbar = () => {
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2 group">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center shadow-lg shadow-primary/20 group-hover:scale-110 transition-transform duration-300">
-            <Cpu className="w-6 h-6 text-white" />
+            <Film className="w-6 h-6 text-white" />
           </div>
           <span className="text-xl font-bold tracking-tight text-white group-hover:opacity-80 transition-opacity">
             Brit<span className="text-primary">Tube</span>

@@ -4,8 +4,7 @@ import React, { useEffect, useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { Smartphone, Monitor, Film, Music, Type } from "lucide-react";
-import ScrollMorphHero from "@/components/ui/scroll-morph-hero";
+import { Smartphone, Monitor, Play, Film, Users } from "lucide-react";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -49,17 +48,12 @@ export const Showcase = () => {
       <div className="max-w-7xl mx-auto flex flex-col items-center">
         <div className="text-center mb-20">
           <h2 className="text-sm font-bold tracking-[0.2em] text-secondary uppercase mb-4">
-            Interactive Showcase
+            See It In Action
           </h2>
           <h1 className="text-4xl md:text-6xl font-black text-white mb-6">
-            Cinematic Quality, <br />
+            Professional Results, <br />
             <span className="text-gradient">Zero Effort</span>
           </h1>
-        </div>
-
-        {/* Scroll Morph Hero Animation */}
-        <div className="w-full max-w-5xl h-[800px] rounded-3xl overflow-hidden border border-white/10 shadow-2xl shadow-purple-500/10 mb-16">
-          <ScrollMorphHero />
         </div>
 
         <div className="relative w-full max-w-4xl perspective-1000">
@@ -69,27 +63,25 @@ export const Showcase = () => {
             className="relative z-20 rounded-[2.5rem] p-4 glass border-white/10 shadow-[0_0_50px_rgba(168,85,247,0.2)]"
           >
             <div className="relative aspect-[16/9] w-full rounded-[1.5rem] overflow-hidden bg-black/40 group">
-              {/* Mockup Content (Placeholder for video) */}
-              <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-purple-900/40 to-indigo-900/40">
+              {/* Mockup Content (Video Preview) */}
+              <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-purple-900/40 to-blue-900/40">
                 <div className="flex flex-col items-center gap-4">
-                  <div className="w-16 h-16 rounded-full bg-white/10 flex items-center justify-center animate-pulse">
-                    <Film className="w-8 h-8 text-white/50" />
+                  <div className="w-20 h-20 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors cursor-pointer">
+                    <Play className="w-10 h-10 text-white fill-white ml-1" />
                   </div>
-                  <span className="text-white/30 font-medium">Rendering Preview...</span>
+                  <span className="text-white/50 font-medium">Preview Generated Video</span>
                 </div>
               </div>
               
               {/* Overlay UI */}
               <div className="absolute top-6 left-6 right-6 flex justify-between items-start opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                <div className="glass px-4 py-2 rounded-xl border-white/10 text-xs font-bold">
-                  AUTOPILOT ON
+                <div className="glass px-4 py-2 rounded-xl border-purple-500/30 text-xs font-bold text-purple-400 flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-purple-400 animate-pulse" />
+                  AI GENERATED
                 </div>
                 <div className="flex gap-2">
                   <div className="w-8 h-8 rounded-lg glass border-white/10 flex items-center justify-center">
-                    <Music className="w-4 h-4 text-white" />
-                  </div>
-                  <div className="w-8 h-8 rounded-lg glass border-white/10 flex items-center justify-center">
-                    <Type className="w-4 h-4 text-white" />
+                    <Film className="w-4 h-4 text-white" />
                   </div>
                 </div>
               </div>
@@ -117,10 +109,10 @@ export const Showcase = () => {
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mt-24 text-center">
           {[
-            { label: "Rendering Speed", value: "0.8s/frame" },
-            { label: "AI Accuracy", value: "99.2%" },
-            { label: "Daily Users", value: "10K+" },
-            { label: "Viral Videos", value: "1.2M" },
+            { label: "Videos Generated", value: "50K+" },
+            { label: "Happy Creators", value: "2,400+" },
+            { label: "Average Generation", value: "< 3min" },
+            { label: "Supported Languages", value: "50+" },
           ].map((stat, i) => (
             <motion.div
               initial={{ opacity: 0, scale: 0.5 }}
