@@ -90,12 +90,12 @@ class VideoParams(BaseModel):
     subtitle_enabled: Optional[bool] = True
     subtitle_position: Optional[str] = "bottom"  # top, bottom, center, custom
     custom_position: float = 70.0
-    font_name: Optional[str] = "STHeitiMedium.ttc"
+    font_name: Optional[str] = "Charm-Bold.ttf"
     text_fore_color: Optional[str] = "#FFFFFF"
-    text_background_color: Union[bool, str] = True
-    font_size: int = 60
+    text_background_color: Optional[str] = "#000000"
+    font_size: int = 48
     stroke_color: Optional[str] = "#000000"
-    stroke_width: float = 1.5
+    stroke_width: float = 2.0
 
     # Word highlighting settings
     enable_word_highlighting: Optional[bool] = False

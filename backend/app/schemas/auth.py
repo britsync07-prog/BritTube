@@ -49,6 +49,7 @@ class UserOut(BaseModel):
     id: int
     email: str
     full_name: str
+    role: str = "user"
     plan: str
     is_active: bool
     created_at: Optional[datetime] = None

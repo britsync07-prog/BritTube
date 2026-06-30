@@ -1,19 +1,50 @@
 import os
 import uuid
+import threading
 from loguru import logger
 from app.services import task as task_service
-from app.models.schema import VideoParams
+from app.models.schema_mpt import VideoParams
 from app.utils import utils
 
 from sqlalchemy.orm import Session
 from app.models.task import Task
 from app.db.database import SessionLocal
 
+# Concurrency limiter - prevents server overload
+# Read from config or default to 5 concurrent tasks
+_max_concurrent_tasks = 5
+_task_semaphore = threading.Semaphore(_max_concurrent_tasks)
+_active_tasks = 0
+_active_tasks_lock = threading.Lock()
+
+def _run_limited_task(task_id: str, params: VideoParams):
+    """Wrapper that acquires semaphore before running task."""
+    global _active_tasks
+    with _active_tasks_lock:
+        _active_tasks += 1
+        logger.info(f"Active tasks: {_active_tasks}/{_max_concurrent_tasks}")
+    
+    try:
+        _task_semaphore.acquire()
+        try:
+            task_service.start(task_id, params)
+        finally:
+            _task_semaphore.release()
+    finally:
+        with _active_tasks_lock:
+            _active_tasks -= 1
+            logger.info(f"Active tasks: {_active_tasks}/{_max_concurrent_tasks}")
+
 class VideoController:
     @staticmethod
     def create_task(db: Session, params: VideoParams, user_id: int):
         task_id = utils.get_uuid()
         logger.info(f"creating task {task_id} for user {user_id}")
+        
+        # Check if we're at capacity
+        with _active_tasks_lock:
+            if _active_tasks >= _max_concurrent_tasks:
+                logger.warning(f"Task queue full ({_active_tasks}/{_max_concurrent_tasks}), task {task_id} will queue")
         
         # 1. Create database record
         db_task = Task(
@@ -28,8 +59,8 @@ class VideoController:
         db.commit()
         db.refresh(db_task)
         
-        # 2. Start task in background
-        utils.run_in_background(task_service.start, task_id, params)
+        # 2. Start task in background with concurrency limiting
+        utils.run_in_background(_run_limited_task, task_id, params)
         
         return {"task_id": task_id}
 

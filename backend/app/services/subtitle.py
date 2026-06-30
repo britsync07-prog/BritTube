@@ -3,13 +3,16 @@ import os.path
 import re
 from timeit import default_timer as timer
 
-
+try:
+    from faster_whisper import WhisperModel
+except ImportError:
+    WhisperModel = None
 from loguru import logger
 
 from app.core.config import config
 from app.utils import utils
 
-model_size = config.whisper.get("model_size", "tiny")
+model_size = config.whisper.get("model_size", "large-v3")
 device = config.whisper.get("device", "cpu")
 compute_type = config.whisper.get("compute_type", "int8")
 model = None
@@ -17,6 +20,9 @@ model = None
 
 def create(audio_file, subtitle_file: str = ""):
     global model
+    if WhisperModel is None:
+        logger.warning("faster_whisper not available, skipping whisper subtitle generation")
+        return ""
     if not model:
         model_path = f"{utils.root_dir()}/models/whisper-{model_size}"
         model_bin_file = f"{model_path}/model.bin"
@@ -27,7 +33,6 @@ def create(audio_file, subtitle_file: str = ""):
             f"loading model: {model_path}, device: {device}, compute_type: {compute_type}"
         )
         try:
-            from faster_whisper import WhisperModel
             model = WhisperModel(
                 model_size_or_path=model_path, device=device, compute_type=compute_type
             )
@@ -156,6 +161,13 @@ def file_to_subtitles(filename):
                 current_times, current_text = None, ""
             elif current_times:
                 current_text += line
+
+    # Flush the final block. SRT files whose last subtitle is not followed by a
+    # trailing blank line never hit the blank-line branch above, so without this
+    # the last subtitle would be silently dropped.
+    if current_times:
+        index += 1
+        times_texts.append((index, current_times.strip(), current_text.strip()))
     return times_texts
 
 
@@ -187,7 +199,8 @@ def similarity(a, b):
 
 def correct(subtitle_file, video_script):
     subtitle_items = file_to_subtitles(subtitle_file)
-    script_lines = utils.split_string_by_punctuations(video_script)
+    normalized_script = utils.normalize_script_for_subtitle_matching(video_script)
+    script_lines = utils.split_string_by_punctuations(normalized_script)
 
     corrected = False
     new_subtitle_items = []
@@ -298,273 +311,3 @@ if __name__ == "__main__":
 
     subtitle_file = f"{task_dir}/subtitle-test.srt"
     create(audio_file, subtitle_file)
-
-
-def create_enhanced_subtitles(audio_file, subtitle_file: str = "", params=None):
-    """
-    Create enhanced subtitles with word-level timing for word highlighting
-    """
-    from app.models.schema import WordTiming, EnhancedSubtitle
-    from faster_whisper import WhisperModel
-    
-    global model
-    if not model:
-        model_path = f"{utils.root_dir()}/models/whisper-{model_size}"
-        model_bin_file = f"{model_path}/model.bin"
-        if not os.path.isdir(model_path) or not os.path.isfile(model_bin_file):
-            model_path = model_size
-
-        logger.info(
-            f"loading model: {model_path}, device: {device}, compute_type: {compute_type}"
-        )
-        try:
-            model = WhisperModel(
-                model_size_or_path=model_path, device=device, compute_type=compute_type
-            )
-        except Exception as e:
-            logger.error(
-                f"failed to load model: {e} \n\n"
-                f"********************************************\n"
-                f"this may be caused by network issue. \n"
-                f"please download the model manually and put it in the 'models' folder. \n"
-                f"see [README.md FAQ](https://github.com/harry0703/MoneyPrinterTurbo) for more details.\n"
-                f"********************************************\n\n"
-            )
-            return None
-
-    logger.info(f"start enhanced subtitle generation, output file: {subtitle_file}")
-    if not subtitle_file:
-        subtitle_file = f"{audio_file}.enhanced.json"
-
-    # Generate word-level transcription
-    segments, info = model.transcribe(
-        audio_file,
-        beam_size=5,
-        word_timestamps=True,
-        vad_filter=True,
-        vad_parameters=dict(min_silence_duration_ms=500),
-    )
-
-    logger.info(
-        f"detected language: '{info.language}', probability: {info.language_probability:.2f}"
-    )
-
-    enhanced_subtitles = []
-    current_subtitle = None
-    current_words = []
-    
-    # Adjust constraints for snappier highlighting if enabled
-    is_highlighting = getattr(params, 'enable_word_highlighting', False)
-    if is_highlighting:
-        # For highlighting, we want very few words on screen at once
-        max_chars_per_line = min(max_chars_per_line, 25)
-        max_lines_per_subtitle = 1 # Force single line for that punchy look
-        word_limit = 5 # Break every 5 words anyway
-    else:
-        word_limit = 20 # Large limit for normal subtitles
-    
-    for segment in segments:
-        if not segment.words:
-            continue
-            
-        for word in segment.words:
-            word_text = word.word.strip()
-            if not word_text:
-                continue
-                
-            # Create word timing
-            word_timing = WordTiming(
-                word=word_text,
-                start=word.start,
-                end=word.end,
-                line=0,  # Will be calculated later
-                position=0  # Will be calculated later
-            )
-            
-            # Start new subtitle if needed
-            if current_subtitle is None:
-                current_subtitle = {
-                    'start_time': word.start,
-                    'end_time': word.end,
-                    'text': '',
-                    'words': []
-                }
-            
-            # Add word to current subtitle
-            current_words.append(word_timing)
-            current_subtitle['words'] = current_words
-            current_subtitle['text'] += word_text + ' '
-            current_subtitle['end_time'] = word.end
-            
-            # Check if we should break
-            # 1. Punctuation
-            # 2. Max length
-            # 3. Word count limit (for snappier highlighting)
-            should_break = (
-                utils.str_contains_punctuation(word_text) or
-                len(current_subtitle['text']) > max_chars_per_line * max_lines_per_subtitle or
-                len(current_words) >= word_limit
-            )
-            
-            if should_break:
-                # Process the current subtitle
-                enhanced_subtitle = _process_enhanced_subtitle(
-                    current_subtitle, max_chars_per_line, max_lines_per_subtitle
-                )
-                enhanced_subtitles.append(enhanced_subtitle)
-                
-                # Reset for next subtitle
-                current_subtitle = None
-                current_words = []
-    
-    # Process remaining subtitle
-    if current_subtitle and current_words:
-        enhanced_subtitle = _process_enhanced_subtitle(
-            current_subtitle, max_chars_per_line, max_lines_per_subtitle
-        )
-        enhanced_subtitles.append(enhanced_subtitle)
-    
-    # Save enhanced subtitles as JSON
-    enhanced_data = [subtitle.dict() for subtitle in enhanced_subtitles]
-    with open(subtitle_file, "w", encoding="utf-8") as f:
-        json.dump(enhanced_data, f, ensure_ascii=False, indent=2)
-    
-    logger.info(f"enhanced subtitle file created: {subtitle_file}")
-    return enhanced_subtitles
-
-
-def _process_enhanced_subtitle(subtitle_data, max_chars_per_line, max_lines_per_subtitle):
-    """
-    Process a subtitle segment to split text into lines and calculate word positions
-    """
-    from app.models.schema import WordTiming, EnhancedSubtitle
-    
-    text = subtitle_data['text'].strip()
-    words = subtitle_data['words']
-    
-    # Clean display text: remove commas but keep them for line break logic
-    display_text = text.replace(', ', ' ').replace(',', ' ')
-    
-    # Split text into lines using original text (with commas) for proper breaking
-    lines = _wrap_text_into_lines(text, max_chars_per_line, max_lines_per_subtitle)
-    
-    # Clean the lines for display (remove commas)
-    display_lines = [line.replace(', ', ' ').replace(',', ' ') for line in lines]
-    
-    # Calculate line and position for each word using cleaned text
-    word_index = 0
-    display_word_list = display_text.split()
-    
-    for line_idx, line in enumerate(display_lines):
-        line_words = line.strip().split()
-        position = 0
-        
-        for line_word in line_words:
-            # Find matching word in our timing data
-            while word_index < len(words):
-                word_timing = words[word_index]
-                # Clean both words for comparison
-                timing_word_clean = word_timing.word.replace('.', '').replace(',', '').replace('!', '').replace('?', '').strip()
-                line_word_clean = line_word.replace('.', '').replace(',', '').replace('!', '').replace('?', '').strip()
-                
-                if timing_word_clean.lower() == line_word_clean.lower():
-                    word_timing.line = line_idx
-                    word_timing.position = position
-                    position += 1
-                    word_index += 1
-                    break
-                word_index += 1
-    
-    return EnhancedSubtitle(
-        start_time=subtitle_data['start_time'],
-        end_time=subtitle_data['end_time'],
-        text=display_text,  # Use cleaned text for display
-        words=words,
-        lines=display_lines  # Use cleaned lines for display
-    )
-
-
-def _wrap_text_into_lines(text, max_chars_per_line, max_lines):
-    """
-    Wrap text into lines respecting word boundaries and comma-based breaks
-    """
-    # First, split by commas to get natural break points
-    comma_segments = [segment.strip() for segment in text.split(',') if segment.strip()]
-    
-    lines = []
-    current_line = ""
-    
-    for segment in comma_segments:
-        words = segment.split()
-        
-        for word in words:
-            test_line = current_line + (" " if current_line else "") + word
-            
-            if len(test_line) <= max_chars_per_line:
-                current_line = test_line
-            else:
-                if current_line:
-                    lines.append(current_line)
-                    current_line = word
-                else:
-                    # Word is too long for a line
-                    lines.append(word)
-                    current_line = ""
-                
-                # Check max lines limit
-                if len(lines) >= max_lines:
-                    break
-        
-        # After each comma segment, consider breaking to new line
-        # if current line is reasonably long (> 60% of max width)
-        if current_line and len(current_line) > max_chars_per_line * 0.6:
-            lines.append(current_line)
-            current_line = ""
-            
-            # Check max lines limit
-            if len(lines) >= max_lines:
-                break
-    
-    # Add remaining text
-    if current_line and len(lines) < max_lines:
-        lines.append(current_line)
-    
-    # Balance line lengths for better center alignment
-    if len(lines) > 1:
-        lines = _balance_subtitle_lines(lines, max_chars_per_line)
-    
-    return lines
-
-
-def _balance_subtitle_lines(lines, max_chars_per_line):
-    """
-    Balance subtitle line lengths for better visual appearance when center-aligned
-    """
-    if len(lines) <= 1:
-        return lines
-    
-    balanced_lines = []
-    
-    for i, line in enumerate(lines):
-        if i < len(lines) - 1:  # Not the last line
-            current_length = len(line)
-            next_line = lines[i + 1]
-            
-            # Try to balance by moving words between lines
-            words_current = line.split()
-            words_next = next_line.split()
-            
-            # If current line is much shorter than max width and next line has words
-            if current_length < max_chars_per_line * 0.7 and len(words_next) > 1:
-                # Try moving first word from next line to current line
-                test_line = line + " " + words_next[0]
-                
-                if len(test_line) <= max_chars_per_line:
-                    # Move the word
-                    balanced_lines.append(test_line)
-                    lines[i + 1] = " ".join(words_next[1:])  # Update next line
-                    continue
-        
-        balanced_lines.append(line)
-    
-    return balanced_lines

@@ -1,11 +1,13 @@
-# 兼容旧的 pip 安装方式；主依赖定义已迁移到 pyproject.toml / uv.lock。
+# BritTube Backend Dependencies
+# Lightweight version - fast video generation without heavy ML models
+# For semantic video matching, install requirements-full.txt instead
+
 moviepy==2.1.2
 streamlit==1.45.0
 edge_tts==7.2.7
 fastapi==0.115.6
 uvicorn==0.32.1
 openai==1.56.1
-faster-whisper==1.1.0
 loguru==0.7.3
 Pillow
 google.generativeai==0.8.6
@@ -21,10 +23,8 @@ pydub==0.25.1
 httpx
 pytest
 pytest-asyncio
-scikit-learn
-sentence-transformers
-transformers
-torch
+
+# Auth & Database
 bcrypt==4.2.0
 passlib[bcrypt]==1.7.4
 python-jose[cryptography]==3.3.0
@@ -32,3 +32,11 @@ sqlalchemy==2.0.36
 pydantic[email]==2.10.4
 python-dotenv==1.0.1
 toml==0.10.2
+
+# Optional: Heavy dependencies for semantic video matching
+# Uncomment below if you need semantic concat mode
+# faster-whisper==1.1.0
+# scikit-learn
+# sentence-transformers
+# transformers
+# torch

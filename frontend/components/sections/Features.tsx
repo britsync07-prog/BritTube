@@ -6,11 +6,11 @@ import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { 
   Zap, 
-  LineChart,
-  ShieldCheck,
-  Activity,
-  Layers,
-  Clock 
+  Video,
+  Mic,
+  Film,
+  Type,
+  Wand2 
 } from "lucide-react";
 import { cn } from "../../lib/utils";
 
@@ -18,39 +18,39 @@ gsap.registerPlugin(ScrollTrigger);
 
 const features = [
   {
-    title: "Instant Signal Execution",
-    description: "Execute high-intent trading signals instantly across multiple exchanges with zero manual intervention.",
-    icon: Zap,
+    title: "AI Script Writing",
+    description: "Generate engaging video scripts automatically based on any topic. Our AI creates professional, viral-worthy content.",
+    icon: Wand2,
     color: "from-emerald-500 to-teal-500",
   },
   {
-    title: "Advanced Risk Management",
-    description: "Automated stop-loss, take-profit, and trailing stops to protect your capital dynamically.",
-    icon: ShieldCheck,
+    title: "Natural Voiceover",
+    description: "Choose from dozens of premium AI voices with natural intonation. Supports multiple languages and accents.",
+    icon: Mic,
     color: "from-blue-500 to-cyan-500",
   },
   {
-    title: "Real-Time Market Data",
-    description: "Algorithms driven by sub-second latency market data ensuring you never miss a trend.",
-    icon: Activity,
+    title: "Stock Footage",
+    description: "Automatically find and download relevant HD stock videos from Pexels and Pixabay to match your script.",
+    icon: Film,
     color: "from-amber-500 to-orange-500",
   },
   {
-    title: "Multi-Exchange Support",
-    description: "Seamlessly connect via encrypted API keys to Binance, Bybit, OKX, and Coinbase.",
-    icon: Layers,
+    title: "Smart Subtitles",
+    description: "Auto-generate subtitles with word-by-word highlighting. Customizable fonts, colors, and positions.",
+    icon: Type,
     color: "from-indigo-500 to-purple-500",
   },
   {
-    title: "24/7 Passive Trading",
-    description: "Our bots monitor the markets around the clock, executing strategies while you sleep.",
-    icon: Clock,
+    title: "One-Click Generate",
+    description: "Enter your topic, click generate, and get a complete video in minutes. No editing skills required.",
+    icon: Zap,
     color: "from-rose-500 to-pink-500",
   },
   {
-    title: "Performance Analytics",
-    description: "Deep dive into your portfolio's growth with transparent, real-time historical logs.",
-    icon: LineChart,
+    title: "Background Music",
+    description: "Auto-add royalty-free background music that matches your video's mood. Volume auto-adjusted for clarity.",
+    icon: Video,
     color: "from-cyan-500 to-blue-600",
   },
 ];
@@ -118,15 +118,15 @@ export const Features = () => {
       <div className="max-w-7xl mx-auto">
         <div ref={headerRef} className="text-center mb-24">
           <h2 className="text-sm font-bold tracking-[0.2em] text-primary uppercase mb-4">
-            Institutional Infrastructure
+            Powerful Features
           </h2>
           <h1 className="text-4xl md:text-6xl font-black text-white mb-6">
             Everything you need for <br />
-            <span className="text-gradient">Passive Wealth Generation</span>
+            <span className="text-gradient">Professional Video Creation</span>
           </h1>
           <p className="max-w-2xl mx-auto text-muted text-lg">
-            TradeAuto combines cutting-edge algorithms with seamless automation
-            to help you dominate the crypto markets with precision.
+            BritTube combines AI-powered scriptwriting, natural voiceovers, and
+            smart editing to help you create viral videos effortlessly.
           </p>
         </div>
 

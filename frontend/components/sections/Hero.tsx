@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { Play, ArrowRight, Sparkles } from "lucide-react";
 import { HeroBackground } from "./HeroBackground";
 import { ParticleAnimation } from "@/components/ui/particle-animation";
+import Link from "next/link";
 
 export const Hero = () => {
   return (
@@ -21,7 +22,7 @@ export const Hero = () => {
           className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass border-white/10 text-primary text-sm font-medium mb-8"
         >
           <Sparkles className="w-4 h-4" />
-          <span>New: Institutional-Grade Trading Signals v2.0</span>
+          <span>New: AI-Powered Video Generation v2.0</span>
         </motion.div>
 
         {/* Particle Animation with overlaid title */}
@@ -33,8 +34,8 @@ export const Hero = () => {
         >
           {/* Overlaid headline text */}
           <h1 className="pointer-events-none z-10 absolute text-center text-5xl md:text-7xl lg:text-8xl font-black tracking-tight leading-[1.1]">
-            Automate Your Crypto <br />
-            <span className="text-gradient">Trading Precision</span>
+            Create Viral Videos <br />
+            <span className="text-gradient">With AI Power</span>
           </h1>
           {/* Particle canvas fills the container */}
           <ParticleAnimation />
@@ -46,8 +47,8 @@ export const Hero = () => {
           transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
           className="max-w-2xl mx-auto text-lg md:text-xl text-muted leading-relaxed mb-12"
         >
-          Secure, non-custodial automated trading platform. Execute passive trading strategies
-          with high-intent crypto signals on your favorite exchanges. 100% automated.
+          Generate professional videos in minutes. AI writes your script, finds
+          stock footage, adds voiceover and subtitles — all automatically.
         </motion.p>
 
         <motion.div
@@ -56,18 +57,21 @@ export const Hero = () => {
           transition={{ duration: 0.8, delay: 0.6, ease: "easeOut" }}
           className="flex flex-col sm:flex-row items-center justify-center gap-6 mb-12"
         >
-          <button className="group relative px-8 py-4 rounded-full bg-primary text-white font-bold text-lg overflow-hidden transition-all hover:scale-105 active:scale-95 shadow-2xl shadow-primary/40">
+          <Link
+            href="/signup"
+            className="group relative px-8 py-4 rounded-full bg-primary text-white font-bold text-lg overflow-hidden transition-all hover:scale-105 active:scale-95 shadow-2xl shadow-primary/40"
+          >
             <span className="relative z-10 flex items-center gap-2">
-              Start Trading Now <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              Start Creating Free <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </span>
             <div className="absolute inset-0 bg-gradient-to-r from-secondary to-primary opacity-0 group-hover:opacity-100 transition-opacity" />
-          </button>
-          
+          </Link>
+
           <button className="flex items-center gap-3 px-8 py-4 rounded-full glass border-white/10 text-white font-semibold text-lg hover:bg-white/10 transition-all">
             <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center">
               <Play className="w-4 h-4 fill-white text-white" />
             </div>
-            View Live Results
+            Watch Demo
           </button>
         </motion.div>
 
@@ -80,21 +84,21 @@ export const Hero = () => {
         >
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-full bg-green-500/10 flex items-center justify-center">
-               <svg className="w-4 h-4 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
+              <svg className="w-4 h-4 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
             </div>
-            <span className="text-sm font-medium">Non-Custodial</span>
+            <span className="text-sm font-medium">Free to Start</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-full bg-blue-500/10 flex items-center justify-center">
-              <svg className="w-4 h-4 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+              <svg className="w-4 h-4 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
             </div>
-            <span className="text-sm font-medium">API Key Encryption</span>
+            <span className="text-sm font-medium">AI-Powered</span>
           </div>
           <div className="flex items-center gap-2">
-             <div className="w-8 h-8 rounded-full bg-amber-500/10 flex items-center justify-center">
-               <svg className="w-4 h-4 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
-             </div>
-             <span className="text-sm font-medium">Ultra-Low Latency</span>
+            <div className="w-8 h-8 rounded-full bg-amber-500/10 flex items-center justify-center">
+              <svg className="w-4 h-4 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+            </div>
+            <span className="text-sm font-medium">HD Quality</span>
           </div>
         </motion.div>
 
@@ -127,4 +131,3 @@ export const Hero = () => {
     </section>
   );
 };
-
