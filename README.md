@@ -1,4 +1,10 @@
-﻿# BritTube
+# BritTube
+<div align="center">
+
+![License](https://img.shields.io/github/license/britsync07-prog/BritTube?style=flat-square&label=license&color=06b6d4) ![Language](https://img.shields.io/github/languages/top/britsync07-prog/BritTube?style=flat-square&color=0ea5e9) ![Stars](https://img.shields.io/github/stars/britsync07-prog/BritTube?style=flat-square&color=f59e0b) ![Last commit](https://img.shields.io/github/last-commit/britsync07-prog/BritTube?style=flat-square&color=22c55e) ![Repo size](https://img.shields.io/github/repo-size/britsync07-prog/BritTube?style=flat-square&color=94a3b8)
+
+</div>
+
 > AI video generation platform — script, footage, voiceover, and subtitles assembled into finished videos, exposed via API and MCP.
 
 BritTube turns a text subject into a publishable video. A FastAPI backend orchestrates LLM script generation, stock-footage retrieval from Pexels/Pixabay, neural text-to-speech (Edge TTS/Azure), subtitle burning, and MoviePy assembly, while a Next.js frontend provides the landing page, generator dashboard, history, and an admin panel for users, tasks, and API keys. An included MCP server lets any MCP-capable AI tool (Claude Desktop, Cursor, Windsurf, Cline) generate videos conversationally.
