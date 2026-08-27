@@ -177,3 +177,8 @@ Hygiene warnings (filenames only):
 ## License
 
 MIT License — Copyright (c) 2026 Musfiqur Rahman Saimon. See [LICENSE](./LICENSE).
+
+
+---
+Keywords: ai video generation, fastapi, moviepy, text-to-speech, video automation, mcp server, python
+
